@@ -1,6 +1,6 @@
 import request from 'supertest';
 import axios from 'axios';
-import { ArchitecturePlan } from '@devclaw/contracts';
+import { ArchitecturePlan } from '@coredev/contracts';
 jest.mock('@supabase/supabase-js', () => {
     const mockSupabase = {
         from: jest.fn().mockReturnThis(),

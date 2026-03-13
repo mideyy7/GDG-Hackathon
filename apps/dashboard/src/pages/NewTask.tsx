@@ -115,64 +115,29 @@ export default function NewTaskPage({ linkedRepo }: NewTaskProps) {
             </div>
           </div>
 
-          {error && (
-            <div className="card border-red-500/20 bg-red-500/5 text-sm text-red-400">
-              {error}
-            </div>
-          )}
 
-          {/* Right-aligned actions */}
-          <div className="flex items-center justify-end gap-4 pt-1">
-            <button
-              type="button"
-              className="text-sm text-gray-500 hover:text-gray-300 transition-colors disabled:opacity-40"
-              onClick={() => navigate(-1)}
-              disabled={submitting}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn-primary"
-              disabled={!description.trim() || !linkedRepo || submitting}
-            >
-              {submitting ? (
-                <><span className="animate-pulse">⚡</span> Submitting…</>
-              ) : (
-                '→ Submit Task'
-              )}
-            </button>
-          </div>
-        </form>
-
-        {/* Sidebar */}
-        <div className="space-y-4">
-          {/* Working on */}
-          {linkedRepo && (
-            <div className="card py-3 px-4">
-              <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Working on</p>
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
-                <span className="font-mono text-sm text-green-300 truncate">{linkedRepo}</span>
-              </div>
-            </div>
-          )}
-
-          {/* What happens next */}
-          <div className="card">
-            <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-3">
-              What happens next
-            </p>
-            <ol className="space-y-2.5">
-              {STEPS.map((step, i) => (
-                <li key={i} className="flex items-start gap-2.5 text-xs text-gray-400">
-                  <span className="text-brand font-mono font-bold shrink-0 mt-px">{i + 1}.</span>
-                  {step}
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
+      {/* What happens next */}
+      <div className="mt-8 card">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          What happens next
+        </p>
+        <ol className="space-y-2 text-sm text-gray-400">
+          {[
+            'A GitHub issue is created for your task',
+            'CoreDev generates an architecture plan',
+            'You review and approve the plan',
+            'AI agents implement the code',
+            'Security scan runs on the diff',
+            'A pull request is opened for review',
+          ].map((step, i) => (
+            <li key={i} className="flex items-start gap-2.5">
+              <span className="text-brand font-mono text-xs mt-0.5 w-4 shrink-0">
+                {i + 1}.
+              </span>
+              {step}
+            </li>
+          ))}
+        </ol>
       </div>
     </div>
   );

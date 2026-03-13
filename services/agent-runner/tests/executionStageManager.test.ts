@@ -27,19 +27,6 @@ jest.mock('../src/securityReviewer', () => ({
     },
 }));
 
-jest.mock('../src/sandboxRunner', () => ({
-    SandboxTestRunner: jest.fn().mockImplementation(() => ({
-        run: jest.fn().mockResolvedValue({
-            passed: true,
-            exitCode: 0,
-            stdout: '',
-            stderr: '',
-            combinedOutput: '',
-            skipped: true,
-            skipReason: 'Mocked in tests',
-        }),
-    })),
-}));
 
 interface GitCommandCall {
     args: string[];
@@ -474,11 +461,11 @@ describe('ExecutionStageManager', () => {
             executionBranchName: 'unknown',
         });
 
-        expect(result?.approvedPatchSet.branchName).toBe('devclaw/run-run-abcd');
+        expect(result?.approvedPatchSet.branchName).toBe('coredev/run-run-abcd');
         expect(gitCalls.some((call) =>
             call.args[0] === 'checkout' &&
             call.args[1] === '-B' &&
-            call.args[2] === 'devclaw/run-run-abcd'
+            call.args[2] === 'coredev/run-run-abcd'
         )).toBe(true);
         expect(gitCalls.some((call) =>
             call.args[0] === 'add' &&

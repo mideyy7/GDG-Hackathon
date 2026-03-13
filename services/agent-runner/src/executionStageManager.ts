@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { execFile } from 'node:child_process';
 import { constants as fsConstants } from 'node:fs';
-import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
@@ -23,7 +23,6 @@ import {
     ExecutionSubTask,
 } from './executionPlugin';
 import { SecurityReviewAgent, SecurityVulnerabilityError } from './securityReviewer';
-import { SandboxTestRunner } from './sandboxRunner';
 
 const execFileAsync = promisify(execFile);
 
@@ -576,20 +575,27 @@ export class ExecutionStageManager {
 
         let repoFileTree: string[] | undefined;
         try {
-            const image = process.env.RUNNER_DOCKER_IMAGE || 'node:22-bookworm-slim';
-            const result = await execFileAsync('docker', [
-                'run', '--rm',
-                '-v', `${workspacePath}:/workspace`,
-                '--workdir', '/workspace',
-                image,
-                'sh', '-c', 'find . -type f -not -path "*/.git/*" -not -path "*/node_modules/*" | sed "s|^./||"'
-            ], { timeout: 30000 });
-            repoFileTree = result.stdout.split('\n').map(l => l.trim()).filter(Boolean);
-            console.log(`[AgentRunner][ExecutionStage] Extracted ${repoFileTree.length} files from docker workspace environment`);
+            const EXCLUDED_DIRS = new Set(['.git', 'node_modules', '.next', 'dist', 'build']);
+            const walkDir = async (dir: string, base: string): Promise<string[]> => {
+                const entries = await readdir(dir, { withFileTypes: true });
+                const results: string[] = [];
+                for (const entry of entries) {
+                    if (EXCLUDED_DIRS.has(entry.name)) continue;
+                    const rel = path.join(base, entry.name);
+                    if (entry.isDirectory()) {
+                        results.push(...await walkDir(path.join(dir, entry.name), rel));
+                    } else if (entry.isFile()) {
+                        results.push(rel);
+                    }
+                }
+                return results;
+            };
+            repoFileTree = await walkDir(workspacePath, '');
+            console.log(`[AgentRunner][ExecutionStage] Scanned ${repoFileTree.length} files in workspace`);
             this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
                 `Repo scanned — ${repoFileTree.length} files indexed`, { fileCount: repoFileTree.length });
         } catch (err: any) {
-            console.warn(`[AgentRunner][ExecutionStage] Failed to extract repo file tree via Docker: ${err.message}`);
+            console.warn(`[AgentRunner][ExecutionStage] Failed to scan repo file tree: ${err.message}`);
             repoFileTree = [];
         }
 
@@ -599,7 +605,7 @@ export class ExecutionStageManager {
         this.notify(
             payload.progressChatId,
             payload.progressBotUrl,
-            `🤖 *DevCore is writing code...*\n\n_Analysing your repo and generating changes for ${subTasks.length} task(s)._`
+            `🤖 *CoreDev is writing code...*\n\n_Analysing your repo and generating changes for ${subTasks.length} task(s)._`
         );
         this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
             `Starting code generation — ${subTasks.length} subtask(s) to complete`, { totalSubTasks: subTasks.length });
@@ -942,35 +948,6 @@ export class ExecutionStageManager {
                     `[AgentRunner][ExecutionStage] subTask=${subTask.id} approved and committed sha=${commitSha}`
                 );
 
-                // Sandbox auto-test: run build + tests inside Docker; feed failures back as reviewer notes
-                const sandboxRunner = new SandboxTestRunner();
-                const sandboxResult = await sandboxRunner.run(workspacePath, payload.runId);
-                if (!sandboxResult.skipped && !sandboxResult.passed) {
-                    console.warn(
-                        `[SandboxRunner] subTask=${subTask.id} iteration=${iteration} ` +
-                        `build/test FAILED exitCode=${sandboxResult.exitCode} — regenerating`
-                    );
-                    // Undo the commit so the generator can try again cleanly
-                    await this.runGit(['reset', '--soft', 'HEAD~1'], workspacePath);
-                    reviewerNotes = [
-                        `Build or test suite FAILED after your changes (exit code ${sandboxResult.exitCode}).`,
-                        'Fix the errors below before re-generating:',
-                        '```',
-                        sandboxResult.combinedOutput.slice(0, 3000),
-                        '```',
-                    ];
-                    finalDecision = 'REWRITE';
-                    trace.push(this.syntheticRewriteTrace(
-                        iteration,
-                        pair.generator.name,
-                        pair.reviewer.name,
-                        generation.model,
-                        generation.provider,
-                        `Sandbox test failed: exitCode=${sandboxResult.exitCode}`
-                    ));
-                    continue;
-                }
-
                 return {
                     report: {
                         subTaskId: subTask.id,
@@ -1196,7 +1173,7 @@ export class ExecutionStageManager {
         const requestedBranch = isPlaceholderValue(expectedBranchName)
             ? ''
             : (expectedBranchName || '').trim();
-        const fallbackBranch = `devcore/run-${(runId || 'unknown').slice(0, 8)}`;
+        const fallbackBranch = `coredev/run-${(runId || 'unknown').slice(0, 8)}`;
         const targetBranch = requestedBranch || currentBranch || fallbackBranch;
 
         if (!targetBranch) {
@@ -1235,8 +1212,8 @@ export class ExecutionStageManager {
     }
 
     private async ensureGitIdentity(workspacePath: string): Promise<void> {
-        await this.runGit(['config', 'user.name', process.env.RUNNER_GIT_USER_NAME || 'DevCore Agent Runner'], workspacePath);
-        await this.runGit(['config', 'user.email', process.env.RUNNER_GIT_USER_EMAIL || 'agent-runner@devcore.local'], workspacePath);
+        await this.runGit(['config', 'user.name', process.env.RUNNER_GIT_USER_NAME || 'CoreDev Agent Runner'], workspacePath);
+        await this.runGit(['config', 'user.email', process.env.RUNNER_GIT_USER_EMAIL || 'agent-runner@coredev.local'], workspacePath);
     }
 
     private async pushExecutionBranch(

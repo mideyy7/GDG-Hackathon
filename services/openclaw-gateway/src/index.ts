@@ -59,20 +59,7 @@ const getOrchestratorBaseUrls = (): string[] => {
     const primaryUrl = process.env.ORCHESTRATOR_URL || 'http://localhost:3010';
     const candidates = [primaryUrl];
 
-    try {
-        const parsed = new URL(primaryUrl);
-        if (parsed.hostname === 'host.docker.internal') {
-            const localhostUrl = new URL(primaryUrl);
-            localhostUrl.hostname = 'localhost';
-            candidates.push(localhostUrl.toString().replace(/\/$/, ''));
-
-            const loopbackUrl = new URL(primaryUrl);
-            loopbackUrl.hostname = '127.0.0.1';
-            candidates.push(loopbackUrl.toString().replace(/\/$/, ''));
-        }
-    } catch {
-        // Keep the primary URL only if parsing fails.
-    }
+    // No additional candidates needed beyond the primary URL.
 
     return Array.from(new Set(candidates.map((url) => url.replace(/\/$/, ''))));
 };
@@ -230,7 +217,7 @@ app.get('/api/auth/github/callback', async (req: Request, res: Response): Promis
                 <head><title>Authentication Successful</title></head>
                 <body style="font-family: sans-serif; text-align: center; padding: 50px;">
                     <h2>✅ GitHub Authentication Successful!</h2>
-                    <p>Your GitHub account has been linked to DevCore via ${provider}.</p>
+                    <p>Your GitHub account has been linked to CoreDev via ${provider}.</p>
                     <p><strong>You can close this window and return to your chat</strong> — we've sent you a confirmation message there too.</p>
                 </body>
             </html>
@@ -484,7 +471,7 @@ app.post('/api/ingress/message', async (req: Request, res: Response): Promise<an
 
         // ── Dispatch to orchestrator ──────────────────────────────────────────
         const repoParts = userPrefs.github_repo.split('/');
-        const intakePayload: import('@devclaw/contracts').IntakeRequest = {
+        const intakePayload: import('@coredev/contracts').IntakeRequest = {
             requestId: crypto.randomUUID(),
             userId,
             channel: provider as "telegram" | "whatsapp",
@@ -667,7 +654,7 @@ app.post('/api/web/task', async (req: Request, res: Response): Promise<any> => {
         return res.status(400).json({ error: 'Invalid repository format.' });
     }
 
-    const intakePayload: import('@devclaw/contracts').IntakeRequest = {
+    const intakePayload: import('@coredev/contracts').IntakeRequest = {
         requestId: crypto.randomUUID(),
         userId,
         channel: 'web',

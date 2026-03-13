@@ -6,10 +6,10 @@
  * and sent as `X-Session-Token` header on all API requests.
  *
  * Security: The userId is a UUIDv4 — infeasible to guess. Stored in
- * localStorage under the key `devcore_session_id`.
+ * localStorage under the key `coredev_session_id`.
  */
 
-const SESSION_KEY = 'devcore_session_id';
+const SESSION_KEY = 'coredev_session_id';
 
 /** Get the current session ID, or null if none exists yet. */
 export const getSessionId = (): string | null => {

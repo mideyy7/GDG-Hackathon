@@ -64,7 +64,7 @@ export default function Comparison() {
                 <th className="px-4 py-4 text-center w-32">
                   <span className="inline-flex items-center gap-1.5 text-sm font-bold text-red-brand bg-red-50 px-3 py-1 rounded-full">
                     <span className="w-1.5 h-1.5 rounded-full bg-red-brand" />
-                    DevCore
+                    CoreDev
                   </span>
                 </th>
               </tr>
@@ -87,7 +87,7 @@ export default function Comparison() {
         </div>
 
         <p className="mt-6 text-center text-xs text-gray-400">
-          DevCore is the only tool in this space with all three: privacy-first inference, adversarial review, and a human approval gate.
+          CoreDev is the only tool in this space with all three: privacy-first inference, adversarial review, and a human approval gate.
         </p>
       </div>
     </section>

@@ -62,10 +62,10 @@ export default function Problem() {
         {/* Quote */}
         <div className="mt-16 max-w-3xl mx-auto text-center">
           <blockquote className="text-2xl font-semibold text-gray-300 leading-relaxed">
-            "The Chinese restaurant doesn't use DevCore —{' '}
+            "The Chinese restaurant doesn't use CoreDev —{' '}
             <span className="text-red-brand">the agency that built the restaurant's app does.</span>"
           </blockquote>
-          <p className="mt-3 text-sm text-gray-500">DevCore is built for software teams, not end consumers.</p>
+          <p className="mt-3 text-sm text-gray-500">CoreDev is built for software teams, not end consumers.</p>
         </div>
       </div>
 

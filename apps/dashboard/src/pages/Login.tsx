@@ -15,8 +15,8 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-10">
           <h1 className="text-4xl font-black tracking-tight mb-2">
-            <span className="text-white">DEV</span>
-            <span className="text-brand">CORE</span>
+            <span className="text-white">Core</span>
+            <span className="text-brand">Dev</span>
           </h1>
           <p className="text-gray-500 text-sm font-mono tracking-widest uppercase">
             Mission Control
@@ -81,7 +81,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <p className="text-center text-xs text-gray-700 mt-6">
-          DevCore AI Engineering Control Center
+          CoreDev AI Engineering Control Center
         </p>
       </div>
     </div>

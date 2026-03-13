@@ -1,6 +1,6 @@
 import { execFile } from 'child_process';
 import { promisify } from 'util';
-import { ArchitecturePlan } from '@devclaw/contracts';
+import { ArchitecturePlan } from '@coredev/contracts';
 
 const execFileAsync = promisify(execFile);
 

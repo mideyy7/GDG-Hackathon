@@ -6,7 +6,7 @@ const LINKS = [
   {
     label: 'GitHub',
     sublabel: 'Browse the source code',
-    href: 'https://github.com/agmada-asa/devcore',
+    href: 'https://github.com/agmada-asa/coredev',
     bg: '#0A0A0A',
     hover: '#1a1a1a',
     border: '#333',
@@ -20,7 +20,7 @@ const LINKS = [
   {
     label: 'Telegram',
     sublabel: 'Message our bot',
-    href: 'https://t.me/DevCoreBot',
+    href: 'https://t.me/CoreDevBot',
     bg: '#229ED9',
     hover: '#1a8bbf',
     border: '#1a8bbf',
@@ -34,7 +34,7 @@ const LINKS = [
   {
     label: 'WhatsApp',
     sublabel: 'Chat on WhatsApp',
-    href: 'https://wa.me/message/devcore',
+    href: 'https://wa.me/message/coredev',
     bg: '#25D366',
     hover: '#1cb955',
     border: '#1cb955',
@@ -99,7 +99,7 @@ export default function LinksPage({ onBack }: Props) {
       </div>
 
       <p className="mt-6 text-xs text-white/20 text-center">
-        Powered by Z.AI GLM · DevCore
+        Powered by Z.AI GLM · CoreDev
       </p>
     </div>
   );

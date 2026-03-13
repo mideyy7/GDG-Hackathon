@@ -33,8 +33,8 @@ export default function Layout({ children, linkedRepo }: LayoutProps) {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <span className="text-lg font-black tracking-tight">
-              <span className="text-white">DEV</span>
-              <span className="text-brand">CORE</span>
+              <span className="text-white">Core</span>
+              <span className="text-brand">Dev</span>
             </span>
           </Link>
 
@@ -99,8 +99,8 @@ export default function Layout({ children, linkedRepo }: LayoutProps) {
       <footer className="border-t border-gray-800 py-4 px-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-gray-400">
           <span>
-            <span className="text-gray-300 font-bold">DEV</span>
-            <span className="text-brand font-bold">CORE</span>
+            <span className="text-gray-600 font-bold">Core</span>
+            <span className="text-brand-deep font-bold">Dev</span>
             {' '}— AI Engineering Control Center
           </span>
           <span>Mission Control v0.1</span>
