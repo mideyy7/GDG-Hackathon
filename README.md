@@ -151,16 +151,16 @@ In development, the dashboard proxies:
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Monorepo | Turborepo + npm workspaces |
-| Backend | Node.js + Express + TypeScript |
-| Frontend | React + Vite + Tailwind CSS |
-| Messaging | Telegram Bot API, WhatsApp Web.js |
-| Persistence | Supabase PostgreSQL |
-| Retrieval | pgvector-based semantic search |
-| Version Control | GitHub API |
-| AI Routing | Custom router in `packages/llm-router` |
+| Layer           | Technology                             |
+| --------------- | -------------------------------------- |
+| Monorepo        | Turborepo + npm workspaces             |
+| Backend         | Node.js + Express + TypeScript         |
+| Frontend        | React + Vite + Tailwind CSS            |
+| Messaging       | Telegram Bot API, WhatsApp Web.js      |
+| Persistence     | Supabase PostgreSQL                    |
+| Retrieval       | pgvector-based semantic search         |
+| Version Control | GitHub API                             |
+| AI Routing      | Custom router in `packages/llm-router` |
 
 ## Model Usage
 
@@ -271,17 +271,6 @@ Typical required values include:
 - model provider API keys
 - bot tokens where applicable
 - service-to-service URLs
-
-## Demo Focus
-
-For a strong hackathon demo:
-
-1. Show the problem in one sentence
-2. Open the dashboard and connect GitHub
-3. Link a repository and submit a real task
-4. Show the architecture plan and approval gate
-5. Show the live Agent Terminal during execution
-6. End on the GitHub pull request
 
 ## Summary
 
