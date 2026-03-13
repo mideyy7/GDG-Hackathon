@@ -1,83 +1,183 @@
-# DevClaw
+# DevCore
 
-> **Describe a code change. Get a GitHub pull request.**
-> No IDE. No manual steps. No waiting.
+> Turn a plain-English software request into a reviewed GitHub pull request.
 
-DevClaw is a **production-ready multi-agent AI system** that turns a plain-English task description into reviewed, security-scanned, committed code on a GitHub branch — accessible via a **web dashboard**, WhatsApp, or Telegram.
+DevCore is an agentic software delivery system for small product teams, founders, and developers who want to go from request -> plan -> approval -> code -> pull request with less manual coordination.
 
-Built entirely on the **Z.AI GLM model ecosystem**, with each model matched to the cognitive complexity of its role.
+Instead of stopping at code suggestions inside an IDE, DevCore runs a full workflow:
 
----
+1. A user submits a task in natural language
+2. DevCore creates an architecture plan with affected files and risks
+3. The user approves, rejects, or refines the plan
+4. Generator and reviewer agents iterate on the implementation
+5. The change can be validated with automated checks, including a security review stage
+6. A GitHub branch and PR are produced for human review
 
-## The Problem It Solves
+## Why This Project Exists
 
-The gap between human intent and working code is still entirely manual.
+Software teams still waste time on simple but necessary work:
 
-A product manager wants to change a button label. A developer must context-switch, clone the repo, find the right file, make the edit, open a PR — twenty minutes for a two-word change. A startup founder can describe exactly what they need built but can't implement it. Engineering teams burn 30–40% of sprint capacity on small-to-medium tasks that still demand the full write → review → push cycle.
+- small bug fixes that require opening the repo, finding the file, editing, testing, pushing, and opening a PR
+- product or founder requests that are clear in English but expensive to convert into engineering work
+- repetitive implementation cycles that still need planning, review, and traceability
 
-AI coding assistants like Copilot help, but they still require a developer in the loop, sitting at a laptop, in an IDE. **DevClaw removes the loop entirely** — submit a task from anywhere, get a pull request.
+Most "vibe coding" tools help one person generate code. DevCore is designed to help a team move work through an actual delivery workflow.
 
----
+## What Makes DevCore Different
 
-## What Makes It Innovative
+DevCore is not a prompt wrapper and not baseline RAG.
 
-Most AI coding tools are wrappers around a single LLM call. DevClaw is a coordinated **multi-agent pipeline** where seven distinct GLM instances each have a defined role, receive structured input, and produce structured output that gates the next stage:
+The product is differentiated by workflow automation, approval gates, and multi-stage execution:
 
-- A **Planner** does full-repo semantic analysis to understand what files need to change and why
-- A **Generator** writes the code using chain-of-thought reasoning
-- A **Reviewer** independently scores the output and sends it back for rewriting if needed — up to 3 iterations
-- A **Sandbox** runs real build + test commands in an isolated Docker container, feeding errors back to the generator
-- A **Security Reviewer** scans every diff for OWASP Top 10 vulnerabilities before a single line is pushed
+- structured planning before any code is written
+- separate generator and reviewer agents instead of one-shot code generation
+- test and security gates before delivery
+- GitHub-native output as a branch and pull request
+- conversational refinement of plans and follow-up amendments
 
-No human is needed between task submission and pull request. The pipeline handles planning, debate, correction, testing, and security gating autonomously.
+The goal is not just to generate code. The goal is to reduce the operational friction between an idea and a mergeable change.
 
----
+
+### Innovation
+
+DevCore treats software delivery as a multi-step system, not a single LLM response.
+
+Key innovations in the current prototype:
+
+- plan-first execution with explicit user approval
+- paired generator/reviewer agent loop with rewrite feedback
+- repo-aware planning with semantic file retrieval
+- security review as a formal gate before code is delivered
+- GitHub issue -> branch -> PR workflow from chat-based task intake
+
+### Technical Execution and User Experience
+
 
 ## What it does
 
-- **Submit**: Describe a code change via the web dashboard, WhatsApp, or Telegram — DevClaw analyses your full repo and returns a structured architecture plan.
+- **Submit**: Describe a code change via the web dashboard, WhatsApp, or Telegram — DevCore analyses your full repo and returns a structured architecture plan.
 - **Review & Approve**: Inspect the plan (files affected, agent assignments, risk flags) and approve, refine, or reject it — from the web UI or with a single chat command.
 - **Generate**: GLM-4.7-Flash writes the code; a second independent GLM-4.7-Flash instance reviews it, requesting rewrites until approved (up to 3 iterations).
 - **Test**: Changes run through `npm build + npm test` inside an ephemeral, network-isolated Docker sandbox — stderr is fed back to the generator if tests fail.
 - **Secure**: A dedicated GLM-4.7 security reviewer scans every diff for OWASP Top 10 vulnerabilities before anything is pushed.
-- **Deliver**: Branch is pushed to GitHub, PR is opened, and the link is surfaced in your dashboard or sent via chat — in under 3 minutes.
+- **Deliver**: Branch is pushed to GitHub, PR is opened, and the link is surfaced in your dashboard or sent via chat — in under 3 minutes
 
----
+DevCore has a web-based interface and can also be integrated into Whatsapp/Telegram.
 
-## Demo
+### Impact
 
-> Watch the 5-minute walkthrough: [Link to pitch video]
+DevCore improves user workflow by reducing the number of manual steps needed to ship small-to-medium engineering tasks.
 
-**Live flow:**
-1. User submits `Change homepage button text from "Start the journey" to "Start journey"` — via the web dashboard, WhatsApp, or Telegram
-2. DevClaw analyses the repo and returns a structured architecture plan
-3. User approves via the dashboard's plan view, or sends `/approve plan-abc123` in chat
-4. GLM-4.7-Flash generates the code change; a second GLM-4.7-Flash instance reviews it
-5. GLM-4.7 scans the diff for OWASP vulnerabilities
-6. Branch is pushed to GitHub — PR link appears in the dashboard and/or is sent via chat — in under 3 minutes
+For a founder, PM, or engineer, the value is:
 
----
+- less context switching
+- faster turnaround on repetitive tasks
+- visible review and risk controls
+- cleaner handoff into GitHub
+- fewer "can you quickly change this?" interruptions
 
-## Tech Stack
+## Current End-to-End Flow
+
+```text
+User (Web Dashboard / Telegram / WhatsApp)
+  -> submit task
+Gateway
+  -> authenticate user and route request
+Orchestrator
+  -> create issue, fetch context, request plan
+OpenClaw Engine
+  -> generate architecture plan, retrieve relevant repo context
+User
+  -> approve / reject / refine
+Agent Runner
+  -> generate code, review code, run optional validation/security stages
+GitHub
+  -> push branch and open pull request
+User
+  -> receive status and PR link
+```
+
+## Core Features
+### 1. Plan Before Code
+
+Every task is turned into a structured architecture plan before execution. This creates a clear approval point and reduces reckless one-shot generation.
+
+### 2. Generator -> Reviewer Loop
+
+Code generation and code review are handled by separate agent roles. Reviewer feedback can trigger rewrite iterations before the change progresses.
+
+### 3. Security Gate
+
+Before delivery, the change can be reviewed for concrete OWASP-style issues such as injection risks, hardcoded secrets, auth failures, and misconfiguration.
+
+### 4. Test-Aware Execution
+
+The execution flow is structured to support automated validation loops before a PR is opened.
+
+### 5. Conversational Refinement
+
+Users can refine a plan before approval and amend an existing branch after initial delivery.
+
+### 6. Repository-Aware Planning
+
+The planner can use semantic retrieval to identify relevant files and improve planning quality on larger repositories.
+
+
+## Architecture
 
 | Layer | Technology |
 |---|---|
-| **AI Models** | Z.AI GLM-4.7-flash (generate/review), GLM-4.7 (plan/orchestrate/security) |
-| **AI Routing** | Custom LLM router: SSE streaming, retries, fallback, JSON mode, usage logging |
-| **Messaging** | Telegram Bot API, WhatsApp Web.js |
-| **Sandbox** | Docker ephemeral containers (network-isolated, memory-limited) |
-| **Vector Search** | Supabase pgvector + Z.AI embedding-3 |
-| **Version Control** | GitHub REST API via Octokit (issues, branches, commits, PRs) |
-| **Backend** | Node.js 22 + Express + TypeScript |
-| **Frontend** | React + Vite + Tailwind CSS |
-| **Database** | Supabase (PostgreSQL + pgvector) |
-| **Monorepo** | Turborepo + npm workspaces |
+| Monorepo | Turborepo + npm workspaces |
+| Backend | Node.js + Express + TypeScript |
+| Frontend | React + Vite + Tailwind CSS |
+| Messaging | Telegram Bot API, WhatsApp Web.js |
+| Persistence | Supabase PostgreSQL |
+| Retrieval | pgvector-based semantic search |
+| Version Control | GitHub API |
+| AI Routing | Custom router in `packages/llm-router` |
 
----
+## Model Usage
 
-## Quick Start
+AI models are used as infrastructure inside a larger workflow, not as the product itself.
+
+In the current implementation:
+
+- planning, orchestration, and security review are routed through OpenRouter-backed model calls
+- generation and review are routed through the internal LLM router
+- semantic search uses embedding-based retrieval for repo context
+
+
+## Repository Structure
+
+```text
+apps/
+  dashboard/
+  landing-page/
+  telegram-bot/
+  whatsapp-bot/
+
+services/
+  openclaw-gateway/
+  orchestrator/
+  openclaw-engine/
+  agent-runner/
+
+packages/
+  contracts/
+  llm-router/
+
+docs/
+  architecture/
+  runbooks/
+
+infra/
+  docker/
+```
+
+## Getting Started
 
 ### Prerequisites
+
 
 - Node.js 20+, npm 10+
 - **Z.AI API key** — [open.bigmodel.cn](https://open.bigmodel.cn) — required for GLM generation
@@ -86,27 +186,28 @@ No human is needed between task submission and pull request. The pipeline handle
 - Telegram bot token (from @BotFather) and/or WhatsApp session
 - Supabase project (PostgreSQL + pgvector extension)
 - Docker (optional — only needed for sandbox test execution; file scanning works without it)
+- 
 
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/your-org/devclaw
-cd devclaw
 npm install
 ```
 
-### 2. Configure
+=======
+### Recommended Local Run
 
-Copy and fill in the `.env` file for each service you want to run:
+Run the backend services:
 
 ```bash
-cp services/orchestrator/.env.example     services/orchestrator/.env
-cp services/agent-runner/.env.example     services/agent-runner/.env
-cp services/openclaw-gateway/.env.example services/openclaw-gateway/.env
-cp services/openclaw-engine/.env.example  services/openclaw-engine/.env
-cp apps/telegram-bot/.env.example         apps/telegram-bot/.env
-cp apps/whatsapp-bot/.env.example         apps/whatsapp-bot/.env
+npx turbo run dev \
+  --filter=openclaw-gateway \
+  --filter=orchestrator \
+  --filter=openclaw-engine \
+  --filter=agent-runner \
+  --concurrency=10
 ```
+
 
 Key variables (set in each relevant service `.env`):
 
@@ -202,7 +303,6 @@ Expected output:
 
 Open **http://localhost:3005** to use the web dashboard.
 
----
 
 ## How It Works
 
@@ -216,7 +316,6 @@ Open **http://localhost:3005** to use the web dashboard.
 8. Security Reviewer (GLM-4.7) scans the full diff for OWASP Top 10. Critical findings block the push.
 9. Branch is pushed, PR is opened — link appears in the dashboard run detail view and/or is sent via chat.
 
----
 
 ## System Architecture
 
@@ -251,7 +350,6 @@ GitHub Client -> push branch -> open pull request
 User receives PR link in dashboard + chat notification
 ```
 
----
 
 ## Z.AI Integration — The Full GLM Ecosystem
 
@@ -267,48 +365,52 @@ Every agent runs a Z.AI GLM model, matched to the cognitive complexity of its ro
 | Backend Generator | `glm-4.7-flash` | Direct Z.AI API | Specialised API/DB/service code generation |
 | Security Reviewer | `glm-4.7` | OpenRouter | OWASP Top 10 vulnerability scanning on every diff |
 
-**Fallback strategy:** every OpenRouter call falls back to `glm-4.7-flash` via direct Z.AI API. DevClaw never leaves the GLM family.
 
-### LLM Router
+Run the dashboard:
 
-`packages/llm-router/` is the core Z.AI integration layer:
-
-```typescript
-import { chat, callZaiEmbedding } from '@devclaw/llm-router';
-
-// Code generation — routes to glm-4.7-flash via direct Z.AI API
-const reply = await chat({
-  role: 'generator',
-  messages: [{ role: 'user', content: 'Add a rate limiter to this Express route...' }],
-  requestId: 'run-abc-123',
-});
-
-// Semantic file search embedding
-const vector = await callZaiEmbedding('database connection pooling logic');
+```bash
+npx turbo run dev --filter=@devclaw/dashboard
 ```
 
-What it handles: provider routing, two-phase SSE streaming (chain-of-thought + final answer), JSON mode enforcement, per-role token budgets (16,384 for generators), retry + fallback, and Supabase usage logging.
+Run the landing page separately if needed:
 
----
+```bash
+npx turbo run dev --filter=@devclaw/landing-page
+```
 
-## Production Features
+Or run the workspace defaults:
 
-### Agentic Generator → Reviewer Loop
-Generator and Reviewer are separate GLM-4.7-Flash instances. Reviewer notes are injected into the next Generator prompt — the model self-corrects across up to 3 iterations before halting.
+```bash
+npm run dev
+```
 
-### Sandbox Auto-Test Loop
-After Reviewer approval, DevClaw runs `npm install && npm run build && npm test` inside an ephemeral Docker container with no network access. Test failures feed stderr back to the Generator as grounding context. Repo file indexing uses native Node.js `readdir` — Docker is only required for running sandbox tests, not for file scanning.
+### Default Local Ports
 
-### Security Gate (OWASP Top 10)
-Before any push, GLM-4.7 scans the full diff for SQL injection, XSS, IDOR, hardcoded secrets, and 7 more OWASP categories. Critical/high findings block the push and alert the user.
+- Gateway: `http://localhost:3001`
+- Orchestrator: `http://localhost:3010`
+- Agent Runner: `http://localhost:3030`
+- OpenClaw Engine: `http://localhost:3040`
+- Dashboard: `http://localhost:3005`
 
-### Conversational PR Refinement
-After a branch is pushed, users send `/amend <planId> <instructions>` to push additional commits to the same branch with no new task needed.
+## Environment Setup
 
-### Semantic Repository Search (RAG + pgvector)
-All repo files are embedded with Z.AI `embedding-3` and stored in Supabase pgvector. Top-k relevant snippets are retrieved via cosine similarity and injected into the planner prompt.
+Each service expects its own `.env` file. Review the service code before running and provide the required values for:
 
----
+- Supabase URL and service role key
+- GitHub OAuth credentials and/or GitHub token
+- model provider API keys
+- bot tokens where applicable
+- service-to-service URLs
+
+At minimum, expect to configure values in:
+
+- `services/openclaw-gateway/.env`
+- `services/orchestrator/.env`
+- `services/openclaw-engine/.env`
+- `services/agent-runner/.env`
+- `apps/dashboard/.env` if you introduce dashboard-specific config later
+- `apps/telegram-bot/.env`
+- `apps/whatsapp-bot/.env`
 
 ## Interfaces
 
@@ -326,19 +428,58 @@ The dashboard provides the full experience with richer visibility than the chat 
 
 ### Chat Commands (WhatsApp / Telegram)
 
-| Command | Description |
-|---|---|
-| `/login` | Link your GitHub account via OAuth |
-| `/repo owner/repo` | Set your active repository |
-| `/task <description>` | Create a coding task — returns an architecture plan |
-| `/approve <planId>` | Approve the plan and start code generation |
-| `/refine <planId> <notes>` | Request plan changes before approving |
-| `/reject <planId>` | Cancel the plan |
-| `/amend <planId> <instructions>` | Push additional commits to an existing branch |
-| `/status` | Show your linked repo and GitHub connection |
-| `/repos` | List accessible repositories |
+### Shared Commands
 
----
+- `/login` - link GitHub account
+- `/repo owner/repo` - set active repository
+- `/task <description>` - create a new software task
+- `/approve <planId>` - approve a generated plan
+- `/refine <planId> <notes>` - request changes to the plan
+- `/reject <planId>` - cancel the plan
+- `/amend <planId> <instructions>` - update an existing branch after delivery
+- `/status` - show connection/repo state
+- `/repos` - list available repositories
+
+## Web Dashboard
+
+The dashboard in `apps/dashboard` currently supports:
+
+- GitHub sign-in from the browser
+- repository discovery and linking
+- task submission from the web UI
+- run listing and run detail pages
+- plan approve / reject / refine actions
+- live event streaming with the Agent Terminal
+- PR and branch result views
+
+In development, the dashboard proxies:
+
+- `/api/*` to the gateway on port `3001`
+- `/orchestrator/*` to the orchestrator on port `3010`
+
+
+
+## Summary
+
+### Problem
+
+Small engineering tasks still require a full coordination cycle even when the change itself is simple.
+
+### Solution
+
+DevCore turns a natural-language request into a traceable software delivery workflow with planning, approval, execution, review, and PR output.
+
+### Why It Matters
+
+This improves delivery speed while preserving controls that generic coding copilots usually skip.
+
+### Why It Is Not A Generic Chatbot
+- it creates structured plans
+- it uses approval gates
+- it coordinates multiple execution stages
+- it integrates with GitHub delivery flow
+- it performs review and security checks before output
+
 
 ## Repository Structure
 
@@ -368,44 +509,5 @@ docs/
   runbooks/         Demo checklist, debugging guide
 ```
 
----
 
-## Troubleshooting
 
-**Services won't start**
-- Run `npm install` from the repo root first — Turborepo needs all workspace packages linked.
-- Confirm all `.env` files exist for each service (see Configure step above).
-
-**`/task` returns no plan**
-- Check `ZAI_API_KEY` and `OPENROUTER_API_KEY` are set and valid.
-- Check the orchestrator logs: `npm run dev:servers` prints per-service prefixed output.
-
-**RAG search returns empty results**
-- The file-embeddings table may not be seeded yet. Set `RAG_ENABLED=false` to skip on first run.
-
-**Sandbox tests failing**
-- Set `SANDBOX_ENABLED=false` if Docker is not running — file scanning will still work without Docker.
-- Ensure Docker has permission to run containers as the current user.
-
-**Security gate blocking unexpectedly**
-- Set `SECURITY_SCAN_ENABLED=false` to bypass during local development.
-- Review the security reviewer response in the agent-runner logs for the specific finding.
-
-**WhatsApp session drops**
-- WhatsApp Web.js requires a QR scan on first run. Restart the whatsapp-bot service and scan again.
-
----
-
-## Z.AI Track — Judging Criteria
-
-| Criteria | How DevClaw delivers |
-|---|---|
-| **Innovation** | Not a single-LLM wrapper — a coordinated 7-agent pipeline where GLM models debate, review, and self-correct. The Generator/Reviewer loop and autonomous security gate are novel applications of multi-agent AI to software delivery. |
-| **Technical Execution** | Fully functional end-to-end: RAG indexing, streaming SSE, Generator→Reviewer loops, Docker sandboxing, OWASP scanning, GitHub branch/PR creation, and a live web dashboard — all wired together and running against real repos. |
-| **User Experience** | Three interfaces (web dashboard, WhatsApp, Telegram) so users work however they prefer. The web UI gives full plan visibility; chat gives mobile-first speed. No IDE, no terminal, no context switching required. |
-| **Impact** | Removes the developer bottleneck for small-to-medium code changes. A non-technical founder or PM can ship a real pull request to a real GitHub repo in under 3 minutes, from their phone. |
-| **Z.AI Integration** | 7 distinct agent roles, all running GLM variants — nothing works without Z.AI. Covers coding, reasoning, orchestration, security analysis, and semantic embedding. |
-
----
-
-Built for GDG Hackathon 2026.
