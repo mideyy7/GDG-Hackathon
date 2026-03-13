@@ -202,13 +202,6 @@ app.post('/api/task', async (req: Request, res: Response): Promise<any> => {
             return;
         }
 
-        // ── Emit plan_ready event for SSE clients ────────────────────────────────
-        await persistAndEmitEvent(createRunEvent(
-            runId, 'pending_approval', 'plan_ready',
-            `Architecture plan ready — ${plan?.affectedFiles?.length || 0} files affected`,
-            { planId: plan?.planId, summary: plan?.summary }
-        ));
-
         // ── Step 4: Persist task_run to Supabase ─────────────────────────────────
         if (supabase) {
             const { error: dbError } = await supabase.from('task_runs').upsert(
@@ -235,6 +228,13 @@ app.post('/api/task', async (req: Request, res: Response): Promise<any> => {
         } else {
             console.warn('[Orchestrator] Supabase not configured — task_run will not be persisted.');
         }
+
+        // ── Emit plan_ready event for SSE clients ────────────────────────────────
+        await persistAndEmitEvent(createRunEvent(
+            runId, 'pending_approval', 'plan_ready',
+            `Architecture plan ready — ${plan?.affectedFiles?.length || 0} files affected`,
+            { planId: plan?.planId, summary: plan?.summary }
+        ));
 
         // ── Step 5: Build approval card message ──────────────────────────────────
         const issueLabel = isDuplicate ? `🔗 Linked to existing issue #${issueNumber}` : `✅ Created issue #${issueNumber}`;
