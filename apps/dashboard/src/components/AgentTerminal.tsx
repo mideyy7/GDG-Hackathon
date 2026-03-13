@@ -89,7 +89,7 @@ function StageTimeline({ events, currentStatus }: { events: RunEvent[]; currentS
                 failed
                   ? 'bg-red-500'
                   : active
-                  ? 'bg-red-brand animate-pulse'
+                  ? 'bg-brand animate-pulse'
                   : seen
                   ? 'bg-green-500'
                   : 'bg-gray-700'

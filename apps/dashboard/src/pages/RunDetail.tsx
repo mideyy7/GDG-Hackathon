@@ -116,7 +116,7 @@ export default function RunDetailPage() {
                 href={run.issueUrl || '#'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-red-brand transition-colors"
+                className="hover:text-brand transition-colors"
               >
                 Issue #{run.issueNumber}
               </a>

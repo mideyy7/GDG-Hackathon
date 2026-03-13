@@ -9,8 +9,8 @@ const PIPELINE_STEPS = [
   {
     step: '01',
     phase: 'Intake',
-    title: 'You describe the task',
-    body: 'Send a message on Telegram or WhatsApp — in plain English. "Fix the login bug", "add dark mode", "refactor the auth module". No tickets, no PRs, no context switching.',
+    title: 'Describe',
+    body: 'Send a message on Telegram or WhatsApp. No tickets, no PRs, no context switching.',
     model: null,
     accent: 'border-white/10',
     dot: 'bg-white/30',
@@ -18,17 +18,17 @@ const PIPELINE_STEPS = [
   {
     step: '02',
     phase: 'Planning',
-    title: 'GLM-4-long reads your entire codebase',
-    body: 'With a 128k-token context window, the Planner agent reads the full repository tree, understands your architecture, and produces a precise plan: which files change, what approach to take, and risk flags to watch.',
-    model: 'glm-4-long · 128k context',
-    accent: 'border-sky-800/40',
-    dot: 'bg-sky-400',
+    title: 'Analyze',
+    body: 'The Planner agent reads the full repository tree, understands your architecture, and produces a precise plan.',
+    model: 'glm-4-long',
+    accent: 'border-brand-800/40',
+    dot: 'bg-brand',
   },
   {
     step: '03',
     phase: 'Approval',
-    title: 'You approve — in one tap',
-    body: 'The architecture plan is sent back to your Telegram or WhatsApp chat. Review it, approve or reject. Only after approval does any code get written. You stay in control.',
+    title: 'Approve',
+    body: 'Review the architecture plan. Only after approval does any code get written. You stay in control.',
     model: null,
     accent: 'border-white/10',
     dot: 'bg-white/30',
@@ -36,29 +36,29 @@ const PIPELINE_STEPS = [
   {
     step: '04',
     phase: 'Generation',
-    title: 'GLM-4.7-flash writes the code',
-    body: 'The Generator agent receives the approved plan and writes production-ready code changes across all affected files — using its native chain-of-thought to reason through each patch before committing it.',
-    model: 'glm-4.7-flash · direct Z.AI API',
-    accent: 'border-emerald-800/40',
-    dot: 'bg-emerald-400',
+    title: 'Generate',
+    body: 'The Generator agent reasoning through each patch before committing it across affected files.',
+    model: 'glm-4.7-flash',
+    accent: 'border-brand-800/40',
+    dot: 'bg-brand',
   },
   {
     step: '05',
-    phase: 'Review loop',
-    title: 'GLM-4.7-flash reviews — and retries up to 3×',
-    body: 'A second Reviewer agent independently checks the generated code for correctness, edge cases, and style. If it raises issues, the Generator rewrites — up to 3 iterations automatically. Only APPROVED code moves forward.',
-    model: 'glm-4.7-flash · agentic retry loop',
-    accent: 'border-violet-800/40',
-    dot: 'bg-violet-400',
+    phase: 'Review',
+    title: 'Review',
+    body: 'A second Reviewer agent independently checks the code. If it raises issues, the Generator rewrites automatically.',
+    model: 'glm-4.7-flash',
+    accent: 'border-brand-800/40',
+    dot: 'bg-brand',
   },
   {
     step: '06',
     phase: 'Delivery',
-    title: 'A real GitHub PR lands in your repo',
-    body: 'DevClaw pushes the approved code to a feature branch, opens a pull request with a full description and diff, and sends you the link. You review, merge, and ship.',
+    title: 'Deliver',
+    body: 'DevCore pushes the approved code to a feature branch, opens a pull request with a diff, and sends you the link.',
     model: null,
-    accent: 'border-red-800/40',
-    dot: 'bg-red-brand',
+    accent: 'border-brand-800/40',
+    dot: 'bg-brand',
   },
 ];
 
@@ -96,7 +96,7 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.03]"
         style={{
-          backgroundImage: 'linear-gradient(#E8192C 1px, transparent 1px), linear-gradient(to right, #E8192C 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(#FF5A20 1px, transparent 1px), linear-gradient(to right, #FF5A20 1px, transparent 1px)',
           backgroundSize: '64px 64px',
         }}
         aria-hidden="true"
@@ -106,29 +106,23 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 border-b border-white/[0.06] bg-[#050505]/80 backdrop-blur-md">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-white/40 hover:text-white/80 text-xs font-mono tracking-widest transition-colors"
+          className="flex items-center gap-2 text-white/40 hover:text-white/80 text-xs font-mono tracking-widest transition-colors uppercase"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 17l-5-5m0 0l5-5m-5 5h12" />
           </svg>
-          BACK
+          Back
         </button>
 
-        <div className="flex items-center gap-1.5">
-          <span className="font-thin text-white/60 text-sm tracking-[0.2em] uppercase">DEV</span>
-          <span className="w-px h-3 bg-red-brand/50" />
-          <span className="text-sm tracking-[0.2em] uppercase" style={{
-            background: 'linear-gradient(135deg, #ff6070, #E8192C)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}>CLAW</span>
+        <div className="flex items-center gap-1.5 hidden md:flex">
+          <span className="text-white font-bold tracking-[0.15em] text-sm">DEVCORE</span>
         </div>
 
         <button
           onClick={onGetStarted}
-          className="text-xs font-mono tracking-widest text-red-500 hover:text-red-brand border border-red-900/60 hover:border-red-brand/60 rounded px-4 py-1.5 transition-all"
+          className="text-xs font-mono tracking-widest text-[#FF5A20] hover:bg-[#FF5A20]/10 border border-[#FF5A20]/40 rounded px-4 py-1.5 transition-all uppercase"
         >
-          GET STARTED
+          Get Started
         </button>
       </nav>
 
@@ -138,16 +132,16 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
         <section className="text-center space-y-8">
           <div className="flex flex-col items-center justify-center gap-3">
             <div className="flex items-center gap-3 mb-2">
-              <div className="h-px w-12 bg-gradient-to-r from-transparent to-red-brand/40" />
-              <span className="text-[9px] font-mono text-red-brand tracking-[0.5em] uppercase px-2 py-1 rounded bg-red-brand/10 border border-red-brand/20">Now In Private Beta</span>
-              <div className="h-px w-12 bg-gradient-to-l from-transparent to-red-brand/40" />
+              <div className="h-px w-12 bg-gradient-to-r from-transparent to-brand/40" />
+              <span className="text-[9px] font-mono text-[#FF5A20] tracking-[0.5em] uppercase px-2 py-1 rounded bg-[#FF5A20]/10 border border-[#FF5A20]/20">Now In Private Beta</span>
+              <div className="h-px w-12 bg-gradient-to-l from-transparent to-brand/40" />
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-7xl font-thin text-white tracking-widest uppercase my-4" style={{ textShadow: '0 0 60px rgba(232,25,44,0.3)' }}>
-              From message<br />to merged PR
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-white tracking-widest uppercase my-4" style={{ textShadow: '0 0 60px rgba(255,90,32,0.1)' }}>
+              Scale to any<br /><span className="text-[#FF5A20]">codebase.</span>
             </h1>
             <p className="text-white/45 text-base md:text-xl max-w-2xl mx-auto leading-relaxed font-light tracking-wide">
-              DevClaw is a multi-agent AI system that turns a plain-language description into a real GitHub pull request in minutes.
+              DevCore is a multi-agent AI system that turns a plain-language description into a real GitHub pull request in minutes.
             </p>
           </div>
 
@@ -156,9 +150,9 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
             {/* Phone Chat UI */}
             <div className="relative group">
               {/* Decorative glow */}
-              <div className="absolute -inset-4 bg-red-brand/10 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="absolute -inset-4 bg-[#FF5A20]/10 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
-              <div className="relative bg-[#0A0A0A] border border-white/10 rounded-[2.5rem] p-3 shadow-2xl hover:border-red-brand/30 transition-colors duration-500">
+              <div className="relative bg-[#0A0A0A] border border-white/10 rounded-[2.5rem] p-3 shadow-2xl hover:border-[#FF5A20]/30 transition-colors duration-500">
                 {/* Notch */}
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 w-20 h-6 bg-black rounded-b-xl rounded-t-sm z-20" />
 
@@ -170,7 +164,7 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
                       <span className="text-white font-bold text-xs">DC</span>
                     </div>
                     <div>
-                      <p className="text-white font-semibold text-sm tracking-wide">DevClaw Bot</p>
+                      <p className="text-white font-semibold text-sm tracking-wide">DevCore Bot</p>
                       <p className="text-[#2AABEE] text-[10px] tracking-widest font-mono uppercase">online</p>
                     </div>
                   </div>
@@ -186,8 +180,8 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
                       >
                         <div
                           className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-lg ${msg.from === 'user'
-                              ? 'bg-gradient-to-br from-[#2AABEE] to-[#1e8cc7] text-white rounded-br-sm'
-                              : 'bg-white/[0.05] border border-white/[0.05] text-white/90 rounded-bl-sm backdrop-blur-sm'
+                            ? 'bg-gradient-to-br from-[#2AABEE] to-[#1e8cc7] text-white rounded-br-sm'
+                            : 'bg-white/[0.05] border border-white/[0.05] text-white/90 rounded-bl-sm backdrop-blur-sm'
                             }`}
                         >
                           {msg.text}
@@ -200,7 +194,7 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
                   {/* Input bar */}
                   <div className="bg-black/50 px-4 py-3 flex items-center gap-3 border-t border-white/5 backdrop-blur-md">
                     <div className="flex-1 bg-white/[0.05] border border-white/10 rounded-full px-4 py-2 text-xs text-white/30 font-light">
-                      Message DevClaw Bot...
+                      Message DevCore Bot...
                     </div>
                     <div className="w-8 h-8 rounded-full bg-[#2AABEE] flex items-center justify-center opacity-80 cursor-not-allowed">
                       <svg className="w-3.5 h-3.5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
@@ -299,7 +293,7 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-20">
             {STATS.map((s) => (
               <div key={s.label} className="border border-white/[0.08] rounded-xl p-4 bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
-                <p className="text-3xl font-thin text-white" style={{ textShadow: '0 0 20px rgba(232,25,44,0.3)' }}>{s.value}</p>
+                <p className="text-3xl font-thin text-white" style={{ textShadow: '0 0 20px rgba(255,90,32,0.3)' }}>{s.value}</p>
                 <p className="text-xs text-white/40 font-mono tracking-wider mt-1 uppercase">{s.label}</p>
               </div>
             ))}
@@ -307,55 +301,47 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
         </section>
 
         {/* Pipeline */}
-        <section className="space-y-6 pt-10">
+        <section className="space-y-6 pt-20">
           <div className="flex items-center gap-3">
-            <div className="h-px w-8 bg-gradient-to-r from-transparent to-red-brand/40" />
-            <span className="text-[9px] font-mono text-red-brand tracking-[0.5em] uppercase">The Pipeline</span>
+            <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#FF5A20]/40" />
+            <span className="text-[9px] font-mono text-[#FF5A20] tracking-[0.5em] uppercase">The Pipeline</span>
           </div>
-          <h2 className="text-2xl font-thin text-white tracking-widest uppercase mb-12">How it works</h2>
+          <h2 className="text-2xl font-bold text-white tracking-widest uppercase mb-12">How it works</h2>
 
-          <div className="relative mt-10">
-            {/* Vertical connector line */}
-            <div className="absolute left-[19px] top-6 bottom-6 w-px bg-gradient-to-b from-white/5 via-red-brand/20 to-white/5" />
-
-            <div className="space-y-4">
-              {PIPELINE_STEPS.map((s) => (
-                <div key={s.step} className={`relative flex gap-6 p-5 rounded-xl border ${s.accent} bg-white/[0.02] hover:bg-white/[0.035] transition-colors`}>
-                  {/* Step dot */}
-                  <div className="flex-shrink-0 relative z-10">
-                    <div className={`w-10 h-10 rounded-full border ${s.accent} bg-[#050505] flex items-center justify-center`}>
-                      <div className={`w-2 h-2 rounded-full ${s.dot}`} />
-                    </div>
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 border-t border-white/5 border-l">
+            {PIPELINE_STEPS.map((s, index) => (
+              <div
+                key={s.step}
+                className={`relative flex flex-col p-8 border-b border-r border-white/5 hover:bg-white/[0.01] transition-colors`}
+              >
+                <div className="flex items-start justify-between mb-16">
+                  {/* Icon or dot matching screenshot */}
+                  <div className={`w-8 h-8 rounded-full border border-[#FF5A20]/40 flex items-center justify-center text-[#FF5A20]`}>
+                    <div className="w-2 h-2 rounded-full bg-[#FF5A20] shadow-[0_0_8px_rgba(255,90,32,0.8)]" />
                   </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4 flex-wrap">
-                      <div>
-                        <span className="text-[10px] font-mono text-white/25 tracking-widest uppercase">{s.phase}</span>
-                        <h3 className="text-sm font-semibold text-white/90 mt-0.5">{s.title}</h3>
-                      </div>
-                      {s.model && (
-                        <span className="flex-shrink-0 text-[10px] font-mono px-2.5 py-1 rounded border border-white/[0.08] bg-white/[0.04] text-white/40 tracking-wider">
-                          {s.model}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-white/45 leading-relaxed mt-2">{s.body}</p>
-                  </div>
+                  {/* Huge prominent number */}
+                  <span className="text-6xl font-black text-[#151515] select-none tracking-tighter mix-blend-screen">
+                    {s.step}
+                  </span>
                 </div>
-              ))}
-            </div>
+
+                <div className="flex-1">
+                  <span className="text-lg font-bold text-white tracking-[0.15em] uppercase mt-2 mb-4 block">{s.title}</span>
+                  <p className="text-[13px] text-[#6b6b6b] leading-relaxed tracking-wide">{s.body}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
         {/* GLM Model Table */}
         <section className="space-y-6">
           <div className="flex items-center gap-3">
-            <div className="h-px w-8 bg-gradient-to-r from-transparent to-red-brand/40" />
-            <span className="text-[9px] font-mono text-red-brand tracking-[0.5em] uppercase">Z.AI GLM Models</span>
+            <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#FF5A20]/40" />
+            <span className="text-[9px] font-mono text-[#FF5A20] tracking-[0.5em] uppercase">Z.AI GLM Models</span>
           </div>
           <h2 className="text-2xl font-thin text-white tracking-widest uppercase">Six roles. One model family.</h2>
-          <p className="text-white/40 text-sm max-w-lg mb-8">Every agent in DevClaw runs on Z.AI's GLM model ecosystem. Each model is matched to the cognitive complexity of its role.</p>
+          <p className="text-white/40 text-sm max-w-lg mb-8">Every agent in DevCore runs on Z.AI's GLM model ecosystem. Each model is matched to the cognitive complexity of its role.</p>
 
           <div className="border border-white/[0.08] rounded-xl overflow-hidden bg-black/50 backdrop-blur-sm">
             <div className="grid grid-cols-12 text-[10px] font-mono text-white/25 tracking-widest uppercase px-5 py-3 border-b border-white/[0.06]">
@@ -385,8 +371,8 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
         {/* Key capabilities */}
         <section className="space-y-6">
           <div className="flex items-center gap-3">
-            <div className="h-px w-8 bg-gradient-to-r from-transparent to-red-brand/40" />
-            <span className="text-[9px] font-mono text-red-brand tracking-[0.5em] uppercase">Capabilities</span>
+            <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#FF5A20]/40" />
+            <span className="text-[9px] font-mono text-[#FF5A20] tracking-[0.5em] uppercase">Capabilities</span>
           </div>
           <h2 className="text-2xl font-thin text-white tracking-widest uppercase mb-8">Built for production</h2>
 
@@ -443,23 +429,23 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
         {/* CTA */}
         <section className="text-center space-y-6 pt-10 pb-8">
           <div className="flex items-center justify-center gap-3">
-            <div className="h-px w-12 bg-gradient-to-r from-transparent to-red-brand/40" />
-            <span className="text-[9px] font-mono text-red-brand tracking-[0.5em] uppercase">Try it now</span>
-            <div className="h-px w-12 bg-gradient-to-l from-transparent to-red-brand/40" />
+            <div className="h-px w-12 bg-gradient-to-r from-transparent to-[#FF5A20]/40" />
+            <span className="text-[9px] font-mono text-[#FF5A20] tracking-[0.5em] uppercase">Try it now</span>
+            <div className="h-px w-12 bg-gradient-to-l from-transparent to-[#FF5A20]/40" />
           </div>
-          <h2 className="text-3xl font-thin text-white tracking-widest uppercase">Ready to ship faster?</h2>
+          <h2 className="text-3xl font-bold text-white tracking-widest uppercase">Ready to ship faster?</h2>
           <p className="text-white/40 text-sm max-w-sm mx-auto mb-10">Connect your GitHub repo and send your first task via Telegram or WhatsApp.</p>
           <button
             onClick={onGetStarted}
-            className="group inline-flex items-center gap-3 px-12 py-4 rounded-full bg-red-brand text-white font-bold text-sm tracking-widest hover:scale-105 active:scale-95 transition-all duration-300"
-            style={{ boxShadow: '0 0 40px rgba(232,25,44,0.3)' }}
+            className="group inline-flex items-center gap-3 px-12 py-4 rounded bg-[#FF5A20] text-black font-bold text-sm tracking-widest hover:scale-105 active:scale-95 transition-all duration-300"
+            style={{ boxShadow: '0 0 20px rgba(255,90,32,0.2)' }}
           >
             GET STARTED
             <svg className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </button>
-          <p className="mt-12 text-[10px] text-white/15 font-mono tracking-[0.3em]">POWERED BY Z.AI GLM · DEVCLAW</p>
+          <p className="mt-12 text-[10px] text-white/15 font-mono tracking-[0.3em]">POWERED BY Z.AI GLM · DEVCORE</p>
         </section>
       </div>
     </div>

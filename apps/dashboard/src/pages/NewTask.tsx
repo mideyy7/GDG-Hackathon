@@ -57,7 +57,7 @@ export default function NewTaskPage({ linkedRepo }: NewTaskProps) {
           <p className="text-yellow-300 font-medium mb-1">⚠ No Repository Linked</p>
           <p className="text-gray-400">
             You haven't linked a repository yet.{' '}
-            <a href="/repositories" className="text-red-brand hover:text-red-400 underline">
+            <a href="/repositories" className="text-brand hover:text-red-400 underline">
               Link one first
             </a>{' '}
             before submitting a task.
@@ -151,7 +151,7 @@ export default function NewTaskPage({ linkedRepo }: NewTaskProps) {
             'A pull request is opened for review',
           ].map((step, i) => (
             <li key={i} className="flex items-start gap-2.5">
-              <span className="text-red-brand font-mono text-xs mt-0.5 w-4 shrink-0">
+              <span className="text-brand font-mono text-xs mt-0.5 w-4 shrink-0">
                 {i + 1}.
               </span>
               {step}

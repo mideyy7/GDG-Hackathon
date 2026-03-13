@@ -18,7 +18,7 @@ export default function Hero() {
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: 'linear-gradient(#E8192C 1px, transparent 1px), linear-gradient(to right, #E8192C 1px, transparent 1px)',
+            backgroundImage: 'linear-gradient(#FF5A20 1px, transparent 1px), linear-gradient(to right, #FF5A20 1px, transparent 1px)',
             backgroundSize: '48px 48px',
           }}
         />
@@ -28,7 +28,7 @@ export default function Hero() {
         {/* Left — copy */}
         <div className="flex flex-col gap-6">
           <div className="section-label w-fit animate-fade-in">
-            <span className="w-2 h-2 rounded-full bg-red-brand animate-pulse-slow" />
+            <span className="w-2 h-2 rounded-full bg-brand animate-pulse-slow" />
             Now in private beta · UK AI Agent Hack EP4
           </div>
 
@@ -40,7 +40,7 @@ export default function Hero() {
 
           <p className="text-xl text-gray-500 leading-relaxed max-w-lg">
             Send a plain-English bug report on Telegram or WhatsApp.
-            DevClaw analyses your codebase, proposes a plan, writes the code,
+            DevCore analyses your codebase, proposes a plan, writes the code,
             reviews it with a second AI, and opens a{' '}
             <span className="text-gray-900 font-medium">documented pull request</span> — all before your next standup.
           </p>
@@ -91,7 +91,7 @@ export default function Hero() {
                     <span className="text-white font-bold text-xs">DC</span>
                   </div>
                   <div>
-                    <p className="text-white font-semibold text-sm">DevClaw Bot</p>
+                    <p className="text-white font-semibold text-sm">DevCore Bot</p>
                     <p className="text-white/70 text-xs">online</p>
                   </div>
                 </div>
@@ -118,7 +118,7 @@ export default function Hero() {
                 {/* Input bar */}
                 <div className="bg-white px-3 py-2 flex items-center gap-2 border-t border-gray-100">
                   <div className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-xs text-gray-400">
-                    Message DevClaw Bot...
+                    Message DevCore Bot...
                   </div>
                   <div className="w-8 h-8 rounded-full bg-[#2AABEE] flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -130,7 +130,7 @@ export default function Hero() {
             </div>
 
             {/* Floating badge */}
-            <div className="absolute -top-4 -right-4 bg-red-brand text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-red-brand/30 flex items-center gap-1.5">
+            <div className="absolute -top-4 -right-4 bg-brand text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-brand/30 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
               PR opened in 3 min
             </div>

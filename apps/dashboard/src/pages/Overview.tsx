@@ -82,7 +82,7 @@ export default function OverviewPage({ linkedRepo }: OverviewProps) {
           to="/new-task"
           className="card-hover flex items-center gap-4 group"
         >
-          <div className="w-10 h-10 rounded-lg bg-red-brand/10 border border-red-brand/20 flex items-center justify-center text-red-brand text-lg group-hover:bg-red-brand/20 transition-colors">
+          <div className="w-10 h-10 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand text-lg group-hover:bg-brand/20 transition-colors">
             +
           </div>
           <div>

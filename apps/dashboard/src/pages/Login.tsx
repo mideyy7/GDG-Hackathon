@@ -16,7 +16,7 @@ export default function LoginPage() {
         <div className="text-center mb-10">
           <h1 className="text-4xl font-black tracking-tight mb-2">
             <span className="text-white">DEV</span>
-            <span className="text-red-brand">CLAW</span>
+            <span className="text-brand">CLAW</span>
           </h1>
           <p className="text-gray-500 text-sm font-mono tracking-widest uppercase">
             Mission Control
@@ -47,7 +47,7 @@ export default function LoginPage() {
                 'Approve and merge generated PRs',
               ].map((item) => (
                 <div key={item} className="flex items-center gap-2">
-                  <span className="text-red-brand">›</span>
+                  <span className="text-brand">›</span>
                   {item}
                 </div>
               ))}
@@ -81,7 +81,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <p className="text-center text-xs text-gray-700 mt-6">
-          DevClaw AI Engineering Control Center
+          DevCore AI Engineering Control Center
         </p>
       </div>
     </div>

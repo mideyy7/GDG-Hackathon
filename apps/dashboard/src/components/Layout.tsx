@@ -34,7 +34,7 @@ export default function Layout({ children, linkedRepo }: LayoutProps) {
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <span className="text-lg font-black tracking-tight">
               <span className="text-white">DEV</span>
-              <span className="text-red-brand">CLAW</span>
+              <span className="text-brand">CORE</span>
             </span>
             <span className="text-xs text-gray-600 font-mono border border-gray-800 rounded px-1.5 py-0.5">
               MISSION CONTROL
@@ -103,7 +103,7 @@ export default function Layout({ children, linkedRepo }: LayoutProps) {
         <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-gray-700">
           <span>
             <span className="text-gray-600 font-bold">DEV</span>
-            <span className="text-red-deep font-bold">CLAW</span>
+            <span className="text-brand-deep font-bold">CORE</span>
             {' '}— AI Engineering Control Center
           </span>
           <span>Mission Control v0.1</span>

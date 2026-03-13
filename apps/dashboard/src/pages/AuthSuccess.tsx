@@ -40,7 +40,7 @@ export default function AuthSuccessPage({ onAuthComplete }: AuthSuccessProps) {
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              className="w-1.5 h-1.5 rounded-full bg-red-brand animate-pulse"
+              className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse"
               style={{ animationDelay: `${i * 0.2}s` }}
             />
           ))}

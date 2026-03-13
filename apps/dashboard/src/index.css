@@ -12,34 +12,35 @@
   }
 
   ::selection {
-    @apply bg-red-brand text-white;
+    @apply bg-brand text-white;
   }
 
   /* Dark scrollbar */
-  ::-webkit-scrollbar        { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track  { @apply bg-gray-900; }
-  ::-webkit-scrollbar-thumb  { @apply bg-red-brand rounded-full; }
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-[#050505];
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-brand rounded-none;
+  }
 }
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-4 py-2 bg-red-brand text-white font-semibold
-           rounded-lg text-sm hover:bg-red-dark transition-all duration-200
-           shadow-lg shadow-red-brand/20 hover:-translate-y-0.5 active:translate-y-0
-           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
+    @apply inline-flex items-center gap-2 px-6 py-3 bg-brand text-black font-bold uppercase tracking-widest rounded-sm text-xs hover:bg-brand-dark transition-all duration-200 shadow-[0_0_20px_rgba(255,90,32,0.15)] hover:shadow-[0_0_30px_rgba(255,90,32,0.3)] hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center gap-2 px-4 py-2 bg-gray-800 text-gray-200 font-medium
-           rounded-lg text-sm border border-gray-700 hover:border-red-brand hover:text-white
-           transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0
-           disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center gap-2 px-6 py-3 bg-transparent text-[#FF5A20] font-bold uppercase tracking-widest rounded-sm text-xs border border-[#FF5A20]/40 hover:border-[#FF5A20] hover:bg-[#FF5A20]/10 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center gap-2 px-4 py-2 text-gray-400 font-medium
-           rounded-lg text-sm hover:text-white hover:bg-gray-800
-           transition-all duration-200;
+    @apply inline-flex items-center gap-2 px-4 py-2 text-gray-400 font-medium rounded-lg text-sm hover:text-white hover:bg-gray-800 transition-all duration-200;
   }
 
   .card {
@@ -51,9 +52,7 @@
   }
 
   .input {
-    @apply w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100
-           placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-brand/40
-           focus:border-red-brand transition-colors duration-200;
+    @apply w-full bg-gray-900 border border-white/10 rounded-sm px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FF5A20]/40 focus:border-[#FF5A20] transition-colors duration-200;
   }
 
   .textarea {
@@ -100,15 +99,13 @@
   right: 0;
   top: 0;
   height: 1px;
-  background: linear-gradient(
-    to right,
-    transparent 0%,
-    rgba(232, 25, 44, 0) 10%,
-    rgba(232, 25, 44, 0.5) 50%,
-    rgba(232, 25, 44, 0) 90%,
-    transparent 100%
-  );
-  box-shadow: 0 0 8px rgba(232, 25, 44, 0.4);
+  background: linear-gradient(to right,
+      transparent 0%,
+      rgba(255, 90, 32, 0) 10%,
+      rgba(255, 90, 32, 0.5) 50%,
+      rgba(255, 90, 32, 0) 90%,
+      transparent 100%);
+  box-shadow: 0 0 8px rgba(255, 90, 32, 0.4);
   animation: scan 9s linear infinite;
   animation-delay: 2s;
   opacity: 0;
@@ -119,7 +116,7 @@
 .cursor-blink::after {
   content: '▋';
   animation: blink 1s step-end infinite;
-  color: #E8192C;
+  color: #FF5A20;
 }
 
 /* Log row */
@@ -154,24 +151,35 @@
 }
 
 /* Admin scrollbar (inside panels) */
-.admin-scroll::-webkit-scrollbar        { width: 3px; }
-.admin-scroll::-webkit-scrollbar-track  { background: transparent; }
-.admin-scroll::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.08); border-radius: 9999px; }
+.admin-scroll::-webkit-scrollbar {
+  width: 3px;
+}
+
+.admin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+}
 
 /* Animated underline */
 .nav-link {
   position: relative;
 }
+
 .nav-link::after {
   content: '';
   position: absolute;
   bottom: -2px;
   left: 0;
   width: 0;
-  height: 1px;
-  background: #E8192C;
+  height: 2px;
+  background: #FF5A20;
   transition: width 0.2s ease;
 }
+
 .nav-link:hover::after,
 .nav-link.active::after {
   width: 100%;

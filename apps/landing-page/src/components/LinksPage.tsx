@@ -6,7 +6,7 @@ const LINKS = [
   {
     label: 'GitHub',
     sublabel: 'Browse the source code',
-    href: 'https://github.com/agmada-asa/devclaw',
+    href: 'https://github.com/agmada-asa/devcore',
     bg: '#0A0A0A',
     hover: '#1a1a1a',
     border: '#333',
@@ -20,7 +20,7 @@ const LINKS = [
   {
     label: 'Telegram',
     sublabel: 'Message our bot',
-    href: 'https://t.me/DevClawBot',
+    href: 'https://t.me/DevCoreBot',
     bg: '#229ED9',
     hover: '#1a8bbf',
     border: '#1a8bbf',
@@ -34,7 +34,7 @@ const LINKS = [
   {
     label: 'WhatsApp',
     sublabel: 'Chat on WhatsApp',
-    href: 'https://wa.me/message/devclaw',
+    href: 'https://wa.me/message/devcore',
     bg: '#25D366',
     hover: '#1cb955',
     border: '#1cb955',
@@ -64,11 +64,11 @@ export default function LinksPage({ onBack }: Props) {
 
       {/* Header */}
       <div className="flex flex-col items-center gap-3 mb-6">
-        <div className="w-14 h-14 bg-red-brand rounded-2xl flex items-center justify-center shadow-lg shadow-red-brand/40">
+        <div className="w-14 h-14 bg-brand rounded-2xl flex items-center justify-center shadow-lg shadow-brand/40">
           <span className="text-white font-black font-mono text-xl">DC</span>
         </div>
         <h1 className="text-3xl font-black text-white tracking-tight">
-          Dev<span className="text-red-brand">Claw</span>
+          Dev<span className="text-brand">Claw</span>
         </h1>
         <p className="text-white/40 text-sm">Find us everywhere</p>
       </div>
@@ -99,7 +99,7 @@ export default function LinksPage({ onBack }: Props) {
       </div>
 
       <p className="mt-6 text-xs text-white/20 text-center">
-        Powered by Z.AI GLM · DevClaw
+        Powered by Z.AI GLM · DevCore
       </p>
     </div>
   );

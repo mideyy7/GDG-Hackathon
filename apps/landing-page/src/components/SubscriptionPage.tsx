@@ -29,7 +29,7 @@ export default function SubscriptionPage({ onBack, onSubscribed }: Props) {
       <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-md p-8 shadow-2xl">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-black text-white tracking-tight">
-            Subscribe to <span className="text-red-brand">DevClaw</span>
+            Subscribe to <span className="text-red-brand">DevCore</span>
           </h1>
           <span className="text-[11px] uppercase tracking-[0.2em] text-white/40">Access Gate</span>
         </div>

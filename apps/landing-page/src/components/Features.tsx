@@ -32,7 +32,7 @@ const FEATURES = [
   {
     icon: '🧠',
     title: 'Cross-session memory',
-    body: 'DevClaw remembers your codebase, your patterns, your preferences. Each new task starts from context, not from scratch.',
+    body: 'DevCore remembers your codebase, your patterns, your preferences. Each new task starts from context, not from scratch.',
   },
   {
     icon: '🌍',

@@ -39,7 +39,7 @@ export default function RunCard({ run }: RunCardProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="text-xs text-gray-600 hover:text-red-brand transition-colors"
+                className="text-xs text-gray-600 hover:text-brand transition-colors"
               >
                 #{run.issueNumber}
               </a>

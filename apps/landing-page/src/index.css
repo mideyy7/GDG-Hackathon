@@ -12,40 +12,40 @@
   }
 
   ::selection {
-    @apply bg-red-brand text-white;
+    @apply bg-brand text-white;
   }
 
   /* Scrollbar */
   ::-webkit-scrollbar        { width: 6px; }
-  ::-webkit-scrollbar-track  { @apply bg-gray-100; }
-  ::-webkit-scrollbar-thumb  { @apply bg-red-brand rounded-full; }
+  ::-webkit-scrollbar-track  { @apply bg-[#050505]; }
+  ::-webkit-scrollbar-thumb  { @apply bg-[#FF5A20] rounded-none; }
 }
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-6 py-3 bg-red-brand text-white font-semibold rounded-lg
-           hover:bg-red-dark transition-all duration-200 shadow-lg shadow-red-brand/25
-           hover:shadow-red-dark/30 hover:-translate-y-0.5 active:translate-y-0;
+    @apply inline-flex items-center gap-2 px-6 py-3 bg-brand text-black font-bold uppercase tracking-widest rounded-sm
+           hover:bg-brand-dark transition-all duration-200 shadow-[0_0_20px_rgba(255,90,32,0.15)]
+           hover:shadow-[0_0_30px_rgba(255,90,32,0.3)] hover:-translate-y-0.5 active:translate-y-0;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 font-semibold rounded-lg
-           border border-gray-200 hover:border-red-brand hover:text-red-brand
+    @apply inline-flex items-center gap-2 px-6 py-3 bg-transparent text-[#FF5A20] font-bold uppercase tracking-widest rounded-sm
+           border border-[#FF5A20]/40 hover:border-[#FF5A20] hover:bg-[#FF5A20]/10
            transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0;
   }
 
   .section-label {
-    @apply inline-flex items-center gap-2 text-sm font-semibold text-red-brand
-           bg-red-50 px-3 py-1 rounded-full border border-red-100;
+    @apply inline-flex items-center gap-2 text-sm font-semibold text-brand
+           bg-brand-50 px-3 py-1 rounded-sm border border-brand-100;
   }
 
   .card {
-    @apply bg-white rounded-2xl border border-gray-100 p-6
+    @apply bg-[#0a0a0a] rounded-xl border border-white/5 p-6
            shadow-sm hover:shadow-md transition-shadow duration-200;
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-red-brand to-red-700 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-brand to-brand-700 bg-clip-text text-transparent;
   }
 }
 
@@ -60,7 +60,7 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: #E8192C;
+  background: #FF5A20;
   transition: width 0.2s ease;
 }
 .nav-link:hover::after {
@@ -97,7 +97,6 @@
   transform: translateY(0);
 }
 
-/* ── Scanning beam ──────────────────────────────────────────────────────── */
 .scan-line {
   position: absolute;
   left: 0;
@@ -107,12 +106,12 @@
   background: linear-gradient(
     to right,
     transparent 0%,
-    rgba(232, 25, 44, 0) 5%,
-    rgba(232, 25, 44, 0.4) 50%,
-    rgba(232, 25, 44, 0) 95%,
+    rgba(255, 90, 32, 0) 5%,
+    rgba(255, 90, 32, 0.4) 50%,
+    rgba(255, 90, 32, 0) 95%,
     transparent 100%
   );
-  box-shadow: 0 0 12px rgba(232, 25, 44, 0.4), 0 0 30px rgba(232, 25, 44, 0.1);
+  box-shadow: 0 0 12px rgba(255, 90, 32, 0.4), 0 0 30px rgba(255, 90, 32, 0.1);
   animation: scan 9s linear infinite;
   animation-delay: 1.5s;
   opacity: 0;

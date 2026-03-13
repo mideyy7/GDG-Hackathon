@@ -14,7 +14,7 @@ const PILLARS = [
   {
     tag: 'Human approval gate',
     title: 'You approve the plan before code is written',
-    body: 'DevClaw returns an architecture plan — affected files, agent assignments, risk flags — and waits for explicit approval. No AI writes a single line until you say go.',
+    body: 'DevCore returns an architecture plan — affected files, agent assignments, risk flags — and waits for explicit approval. No AI writes a single line until you say go.',
     accent: false,
   },
 ];

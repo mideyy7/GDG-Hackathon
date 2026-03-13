@@ -31,7 +31,7 @@ export default function Pricing() {
             <div className="bg-red-brand px-8 py-8">
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-red-100 text-sm font-semibold uppercase tracking-widest">DevClaw Pro</p>
+                  <p className="text-red-100 text-sm font-semibold uppercase tracking-widest">DevCore Pro</p>
                   <p className="mt-1 text-white text-4xl font-black">Contact Us</p>
                   <p className="text-red-100 text-sm mt-1">for custom pricing</p>
                 </div>
@@ -54,7 +54,7 @@ export default function Pricing() {
               </ul>
 
               <a
-                href="https://t.me/DevClawBot"
+                href="https://t.me/DevCoreBot"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary w-full justify-center mt-8 py-4 text-base"
@@ -77,7 +77,7 @@ export default function Pricing() {
                 { label: 'Junior engineer', cost: '£50k+/yr', note: '3-month onboard' },
                 { label: 'Second agency', cost: '£10k/project', note: 'Delivers late' },
                 { label: 'Devin', cost: '$500/mo', note: 'Logs your code' },
-                { label: 'DevClaw', cost: 'Custom', highlight: true, note: 'Private, reviewed, documented' },
+                { label: 'DevCore', cost: 'Custom', highlight: true, note: 'Private, reviewed, documented' },
               ].map((c, i) => (
                 <div
                   key={i}
