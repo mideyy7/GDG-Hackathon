@@ -80,7 +80,7 @@ The execution pipeline includes a security review stage that can block risky gen
 
 The planner can use semantic retrieval to identify relevant files and improve planning quality on larger repositories.
 
-### 5. Web Mission Control
+### 5. Web Dashboard
 
 The repo includes a dashboard app for:
 
@@ -99,15 +99,13 @@ The dashboard includes a live terminal fed by orchestrator run events over Serve
 
 ### Web Dashboard
 
-`apps/dashboard` provides:
+`apps/dashboard` (port 3005) provides:
 
-- GitHub sign-in from the browser
-- repository discovery and linking
-- task submission from the web UI
-- run listing and run detail pages
-- plan approve / reject / refine actions
-- live event streaming with the Agent Terminal
-- PR and branch result views
+- `/` — Dashboard: stats cards (total, completed, active, pending approval) and quick actions
+- `/repositories` — browse and link a GitHub repo; inline search bar
+- `/new-task` — two-column layout: task textarea with inline character count, example prompts, and a "what happens next" steps sidebar
+- `/runs` — all runs with underline-style status filter tabs
+- `/runs/:runId` — plan inspection, approve / reject / refine actions, live Agent Terminal, PR result
 
 In development, the dashboard proxies:
 
@@ -132,7 +130,7 @@ In development, the dashboard proxies:
 
 ### Applications
 
-- `apps/dashboard` - web Mission Control
+- `apps/dashboard` - web dashboard (React + Vite, port 3005)
 - `apps/landing-page` - marketing site
 - `apps/telegram-bot` - Telegram interface
 - `apps/whatsapp-bot` - WhatsApp interface
