@@ -1,4 +1,4 @@
-import { ArchitecturePlan } from '@devclaw/contracts';
+import { ArchitecturePlan } from '@coredev/contracts';
 import {
     createPlanWithOpenClawCli,
     revisePlanWithOpenClawCli,

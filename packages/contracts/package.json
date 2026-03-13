@@ -1,8 +1,8 @@
 {
-  "name": "@devclaw/contracts",
+  "name": "@coredev/contracts",
   "version": "1.0.0",
   "private": true,
-  "description": "Shared contracts for DevClaw",
+  "description": "Shared contracts for CoreDev",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
