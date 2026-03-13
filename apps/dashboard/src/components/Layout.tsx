@@ -36,9 +36,6 @@ export default function Layout({ children, linkedRepo }: LayoutProps) {
               <span className="text-white">Core</span>
               <span className="text-brand">Dev</span>
             </span>
-            <span className="text-xs text-gray-600 font-mono border border-gray-800 rounded px-1.5 py-0.5">
-              MISSION CONTROL
-            </span>
           </Link>
 
           {/* Nav links */}
@@ -99,8 +96,8 @@ export default function Layout({ children, linkedRepo }: LayoutProps) {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-900 py-4 px-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-gray-700">
+      <footer className="border-t border-gray-800 py-4 px-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-gray-400">
           <span>
             <span className="text-gray-600 font-bold">Core</span>
             <span className="text-brand-deep font-bold">Dev</span>

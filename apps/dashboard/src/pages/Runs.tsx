@@ -47,7 +47,7 @@ export default function RunsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-white tracking-tight">Runs</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-400 text-sm mt-1">
             All task runs and their current status.
           </p>
         </div>
@@ -57,25 +57,23 @@ export default function RunsPage() {
       </div>
 
       {/* Status filter tabs */}
-      <div className="flex items-center gap-1 flex-wrap">
+      <div className="flex items-center gap-5 flex-wrap border-b border-white/[0.06] pb-0">
         {STATUS_FILTERS.map((s) => (
           <button
             key={s}
             onClick={() => setFilter(s)}
-            className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
+            className={`relative pb-3 text-sm font-medium transition-colors whitespace-nowrap ${
               filter === s
-                ? 'bg-gray-700 text-white'
-                : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/60'
+                ? 'text-white'
+                : 'text-gray-500 hover:text-gray-300'
             }`}
           >
             {s === 'all' ? 'All' : s.replace('_', ' ')}
-            {s === 'all' && (
-              <span className="ml-1.5 text-gray-600">{runs.length}</span>
-            )}
-            {s !== 'all' && (
-              <span className="ml-1.5 text-gray-600">
-                {runs.filter((r) => r.status === s).length}
-              </span>
+            <span className={`ml-1.5 text-[10px] tabular-nums ${filter === s ? 'text-gray-400' : 'text-gray-600'}`}>
+              {s === 'all' ? runs.length : runs.filter((r) => r.status === s).length}
+            </span>
+            {filter === s && (
+              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-brand rounded-full" />
             )}
           </button>
         ))}
@@ -83,11 +81,11 @@ export default function RunsPage() {
 
       {/* Runs list */}
       {loading && runs.length === 0 ? (
-        <div className="space-y-3">
+        <div className="rounded-2xl border border-white/[0.08] bg-gray-800/60 backdrop-blur-sm overflow-hidden divide-y divide-white/[0.06]">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="card animate-pulse">
-              <div className="h-4 bg-gray-800 rounded w-3/4 mb-2" />
-              <div className="h-3 bg-gray-800 rounded w-1/2" />
+            <div key={i} className="px-5 py-4 animate-pulse">
+              <div className="h-4 bg-gray-700 rounded w-3/4 mb-2" />
+              <div className="h-3 bg-gray-700 rounded w-1/2" />
             </div>
           ))}
         </div>
@@ -115,7 +113,7 @@ export default function RunsPage() {
         </div>
       ) : (
         <>
-          <div className="space-y-3">
+          <div className="rounded-2xl border border-white/[0.08] bg-gray-800/60 backdrop-blur-sm overflow-hidden divide-y divide-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
             {filtered.map((run) => (
               <RunCard key={run.id} run={run} />
             ))}
