@@ -9,6 +9,30 @@ Built entirely on the **Z.AI GLM model ecosystem**, with each model matched to t
 
 ---
 
+## The Problem It Solves
+
+The gap between human intent and working code is still entirely manual.
+
+A product manager wants to change a button label. A developer must context-switch, clone the repo, find the right file, make the edit, open a PR — twenty minutes for a two-word change. A startup founder can describe exactly what they need built but can't implement it. Engineering teams burn 30–40% of sprint capacity on small-to-medium tasks that still demand the full write → review → push cycle.
+
+AI coding assistants like Copilot help, but they still require a developer in the loop, sitting at a laptop, in an IDE. **DevClaw removes the loop entirely** — submit a task from anywhere, get a pull request.
+
+---
+
+## What Makes It Innovative
+
+Most AI coding tools are wrappers around a single LLM call. DevClaw is a coordinated **multi-agent pipeline** where seven distinct GLM instances each have a defined role, receive structured input, and produce structured output that gates the next stage:
+
+- A **Planner** does full-repo semantic analysis to understand what files need to change and why
+- A **Generator** writes the code using chain-of-thought reasoning
+- A **Reviewer** independently scores the output and sends it back for rewriting if needed — up to 3 iterations
+- A **Sandbox** runs real build + test commands in an isolated Docker container, feeding errors back to the generator
+- A **Security Reviewer** scans every diff for OWASP Top 10 vulnerabilities before a single line is pushed
+
+No human is needed between task submission and pull request. The pipeline handles planning, debate, correction, testing, and security gating autonomously.
+
+---
+
 ## What it does
 
 - **Submit**: Describe a code change via the web dashboard, WhatsApp, or Telegram — DevClaw analyses your full repo and returns a structured architecture plan.
@@ -34,18 +58,6 @@ Built entirely on the **Z.AI GLM model ecosystem**, with each model matched to t
 
 ---
 
-## The Problem
-
-The interface between human intent and working code is still entirely manual.
-
-- A product manager wants to change a button label. A developer has to context-switch, open the repo, find the file, make the edit, push a branch, open a PR. Twenty minutes for a two-word change.
-- A startup founder can describe exactly what they want built but can't implement it, and hiring a developer for every small task is unviable.
-- Engineering teams burn 30–40% of sprint capacity on small-to-medium tasks that are repetitive but still require the full write → review → push cycle.
-
-AI coding assistants like Copilot help, but they still require a developer in the loop. DevClaw removes the loop entirely.
-
----
-
 ## Tech Stack
 
 | Layer | Technology |
@@ -57,7 +69,7 @@ AI coding assistants like Copilot help, but they still require a developer in th
 | **Vector Search** | Supabase pgvector + Z.AI embedding-3 |
 | **Version Control** | GitHub REST API via Octokit (issues, branches, commits, PRs) |
 | **Backend** | Node.js 22 + Express + TypeScript |
-| **Frontend** | React + Vite + Tailwind CSS (landing page) |
+| **Frontend** | React + Vite + Tailwind CSS |
 | **Database** | Supabase (PostgreSQL + pgvector) |
 | **Monorepo** | Turborepo + npm workspaces |
 
@@ -73,7 +85,7 @@ AI coding assistants like Copilot help, but they still require a developer in th
 - GitHub personal access token (repo + issues scope)
 - Telegram bot token (from @BotFather) and/or WhatsApp session
 - Supabase project (PostgreSQL + pgvector extension)
-- Docker (optional — sandbox test runner gracefully skips if unavailable)
+- Docker (optional — only needed for sandbox test execution; file scanning works without it)
 
 ### 1. Clone & Install
 
@@ -85,6 +97,8 @@ npm install
 
 ### 2. Configure
 
+Copy and fill in the `.env` file for each service you want to run:
+
 ```bash
 cp services/orchestrator/.env.example     services/orchestrator/.env
 cp services/agent-runner/.env.example     services/agent-runner/.env
@@ -94,7 +108,7 @@ cp apps/telegram-bot/.env.example         apps/telegram-bot/.env
 cp apps/whatsapp-bot/.env.example         apps/whatsapp-bot/.env
 ```
 
-Key variables:
+Key variables (set in each relevant service `.env`):
 
 | Variable | Description |
 |---|---|
@@ -103,6 +117,7 @@ Key variables:
 | `GITHUB_TOKEN` | Personal access token with `repo` + `issues` scope |
 | `SUPABASE_URL` | Your Supabase project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key |
+| `TELEGRAM_BOT_TOKEN` | From @BotFather (only needed for Telegram bot) |
 | `SECURITY_SCAN_ENABLED` | `true` / `false` — disable to skip OWASP gate |
 | `SANDBOX_ENABLED` | `true` / `false` — disable if Docker is unavailable |
 | `RAG_ENABLED` | `true` / `false` — disable to skip semantic repo search |
@@ -169,21 +184,23 @@ $$;
 ### 4. Run
 
 ```bash
-# All services (including landing page)
+# All services + dashboard + landing page
 npm run dev
 
-# Core backend only
+# Backend services + bots only (no frontend)
 npm run dev:servers
 ```
 
 Expected output:
 ```
-[gateway]      Listening on http://localhost:3001
-[orchestrator] Listening on http://localhost:3010
-[engine]       Listening on http://localhost:3040
-[agent-runner] Listening on http://localhost:3030
-[dashboard]    Ready on http://localhost:3000
+[openclaw-gateway]  Listening on http://localhost:3001
+[orchestrator]      Listening on http://localhost:3010
+[agent-runner]      Listening on http://localhost:3030
+[openclaw-engine]   Listening on http://localhost:3040
+[dashboard]         Ready on http://localhost:3005
 ```
+
+Open **http://localhost:3005** to use the web dashboard.
 
 ---
 
@@ -217,7 +234,7 @@ OpenClaw Engine (port 3040)  ----------- glm-4.7 (Architecture Planner)
   |  full-repo RAG index (embedding-3 + pgvector)
   |  structured JSON plan: files, domains, risk flags
   v
-User approves plan via WhatsApp (/approve plan-abc123)
+User approves plan (dashboard or /approve chat command)
   v
 Agent Runner (port 3030) -- per sub-task:
   |
@@ -231,7 +248,7 @@ Agent Runner (port 3030) -- per sub-task:
   v
 GitHub Client -> push branch -> open pull request
   v
-User receives: "Code is ready! Branch: devclaw/plan-abc123"
+User receives PR link in dashboard + chat notification
 ```
 
 ---
@@ -280,7 +297,7 @@ What it handles: provider routing, two-phase SSE streaming (chain-of-thought + f
 Generator and Reviewer are separate GLM-4.7-Flash instances. Reviewer notes are injected into the next Generator prompt — the model self-corrects across up to 3 iterations before halting.
 
 ### Sandbox Auto-Test Loop
-After Reviewer approval, DevClaw runs `npm install && npm run build && npm test` inside an ephemeral Docker container with no network access. Test failures feed stderr back to the Generator as grounding context.
+After Reviewer approval, DevClaw runs `npm install && npm run build && npm test` inside an ephemeral Docker container with no network access. Test failures feed stderr back to the Generator as grounding context. Repo file indexing uses native Node.js `readdir` — Docker is only required for running sandbox tests, not for file scanning.
 
 ### Security Gate (OWASP Top 10)
 Before any push, GLM-4.7 scans the full diff for SQL injection, XSS, IDOR, hardcoded secrets, and 7 more OWASP categories. Critical/high findings block the push and alert the user.
@@ -295,16 +312,16 @@ All repo files are embedded with Z.AI `embedding-3` and stored in Supabase pgvec
 
 ## Interfaces
 
-### Web Dashboard
+### Web Dashboard — http://localhost:3005
 
-The dashboard at `http://localhost:3000` (or your deployed URL) provides the full experience with richer UI than the bots:
+The dashboard provides the full experience with richer visibility than the chat bots:
 
 | Page | What you can do |
 |---|---|
 | `/` | Mission control — stats, active runs, quick actions |
 | `/repositories` | Browse and link a GitHub repo via OAuth |
 | `/new-task` | Submit a task with a free-text description (up to 2000 chars) |
-| `/runs` | List all runs, filter by status |
+| `/runs` | List all runs, filter by status (pending, generating, completed, failed) |
 | `/runs/:runId` | Full plan inspection (files, agents, risk flags), approve/refine/reject, live agent terminal, PR link |
 
 ### Chat Commands (WhatsApp / Telegram)
@@ -340,7 +357,7 @@ services/
 
 packages/
   llm-router/       Z.AI provider routing: streaming SSE, retries, fallback, usage logging
-  contracts/        Shared TypeScript interfaces (ArchitecturePlan, IntakeRequest)
+  contracts/        Shared TypeScript interfaces (@coredev/contracts)
   github-client/    Octokit wrapper: issues, branches, PRs, file tree
 
 infra/
@@ -357,7 +374,7 @@ docs/
 
 **Services won't start**
 - Run `npm install` from the repo root first — Turborepo needs all workspace packages linked.
-- Confirm all `.env` files exist (see Configure step above).
+- Confirm all `.env` files exist for each service (see Configure step above).
 
 **`/task` returns no plan**
 - Check `ZAI_API_KEY` and `OPENROUTER_API_KEY` are set and valid.
@@ -367,7 +384,7 @@ docs/
 - The file-embeddings table may not be seeded yet. Set `RAG_ENABLED=false` to skip on first run.
 
 **Sandbox tests failing**
-- Set `SANDBOX_ENABLED=false` if Docker is not running.
+- Set `SANDBOX_ENABLED=false` if Docker is not running — file scanning will still work without Docker.
 - Ensure Docker has permission to run containers as the current user.
 
 **Security gate blocking unexpectedly**
@@ -379,15 +396,15 @@ docs/
 
 ---
 
-## Z.AI Track — Why DevClaw Qualifies
+## Z.AI Track — Judging Criteria
 
-| Requirement | How DevClaw delivers |
+| Criteria | How DevClaw delivers |
 |---|---|
-| Z.AI GLM models as core component | 7 distinct agent roles, all running GLM variants — nothing works without Z.AI |
-| Meaningful GLM usage across capabilities | Coding, reasoning, orchestration, security analysis, and semantic embedding — all 5 |
-| Working prototype, live demo preferred | Fully deployed, runs against real GitHub repos, produces real pull requests |
-| Production-ready | Retry logic, fallback routing, idempotent execution, security gate, usage telemetry |
-| Beyond a simple demo | Autonomous end-to-end pipeline: plan → approve → generate → review → test → secure → push → notify |
+| **Innovation** | Not a single-LLM wrapper — a coordinated 7-agent pipeline where GLM models debate, review, and self-correct. The Generator/Reviewer loop and autonomous security gate are novel applications of multi-agent AI to software delivery. |
+| **Technical Execution** | Fully functional end-to-end: RAG indexing, streaming SSE, Generator→Reviewer loops, Docker sandboxing, OWASP scanning, GitHub branch/PR creation, and a live web dashboard — all wired together and running against real repos. |
+| **User Experience** | Three interfaces (web dashboard, WhatsApp, Telegram) so users work however they prefer. The web UI gives full plan visibility; chat gives mobile-first speed. No IDE, no terminal, no context switching required. |
+| **Impact** | Removes the developer bottleneck for small-to-medium code changes. A non-technical founder or PM can ship a real pull request to a real GitHub repo in under 3 minutes, from their phone. |
+| **Z.AI Integration** | 7 distinct agent roles, all running GLM variants — nothing works without Z.AI. Covers coding, reasoning, orchestration, security analysis, and semantic embedding. |
 
 ---
 
