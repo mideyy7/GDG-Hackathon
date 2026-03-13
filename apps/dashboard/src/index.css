@@ -44,11 +44,11 @@
   }
 
   .card {
-    @apply bg-gray-900 rounded-xl border border-white/[0.06] p-5 shadow-[0_8px_32px_rgba(0,0,0,0.7),0_1px_0_rgba(255,255,255,0.05)_inset];
+    @apply bg-gray-900/75 backdrop-blur-sm rounded-2xl border border-white/[0.08] p-5 shadow-[0_8px_32px_rgba(0,0,0,0.65),0_1px_0_rgba(255,255,255,0.06)_inset];
   }
 
   .card-hover {
-    @apply card hover:bg-gray-800 hover:border-white/[0.14] hover:shadow-[0_12px_40px_rgba(0,0,0,0.8),0_1px_0_rgba(255,255,255,0.07)_inset] transition-all duration-200 cursor-pointer;
+    @apply card hover:bg-gray-800/80 hover:border-white/[0.14] hover:shadow-[0_12px_40px_rgba(0,0,0,0.8),0_1px_0_rgba(255,255,255,0.08)_inset] transition-all duration-200 cursor-pointer;
   }
 
   .input {

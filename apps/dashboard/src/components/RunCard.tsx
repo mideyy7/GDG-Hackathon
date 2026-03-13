@@ -21,7 +21,7 @@ export default function RunCard({ run }: RunCardProps) {
   return (
     <Link
       to={`/runs/${run.id}`}
-      className="card-hover block group"
+      className="block group px-5 py-4 hover:bg-white/[0.03] transition-colors duration-150"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
