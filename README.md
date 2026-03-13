@@ -1,6 +1,6 @@
 # DevCore
 
-> Turn a plain-English software request into a reviewed GitHub pull request.
+> Turns user tasks into reviewed GitHub pull requests.
 
 DevCore is an agentic software delivery system for small product teams, founders, and developers who want to go from request -> plan -> approval -> code -> pull request with less manual coordination.
 
@@ -273,15 +273,47 @@ Typical required values include:
 - service-to-service URLs
 
 ## Summary
+====================================
+PROBLEM
+=====================================
+Most AI coding tools focus on generating code snippets, but they do not support the full software delivery workflow used by real engineering teams. As a result, developers still have to manually coordinate delivery, changes often lack structured planning and review, and AI-generated code can bypass important safety, security, or architectural considerations.
+In addition, collaboration becomes difficult when using AI coding platforms. AI tools are typically used by individuals in isolated interfaces, making it harder for teams to discuss changes, coordinate tasks, and maintain shared visibility over what the AI is generating.
+This creates a clear gap between AI code generation and the collaborative workflows required to safely deliver software in real engineering environments.
 
-### Problem
+=============================================
+SOLUTION
+=============================================
+DevCore is an agentic software delivery system that converts tasks into reviewed GitHub pull requests through a structured workflow.DevCore follows a plan-first delivery pipeline:
+I. A user submits a task
+II. DevCore analyzes the repository and generates an architecture plan
+III. The user can approve, reject, or refine the plan
+IV.  Generator and reviewer agents iterate on the implementation
+V. Validation and security checks run before pushing to Github
 
-Small engineering tasks still require a full coordination cycle even when the change itself is simple.
+This ensures AI-generated code follows the same disciplined workflow used by engineering teams, including planning, review, and validation.
 
-### Solution
+DevCore can be accessed through:
+-a web dashboard
+-WhatsApp
+-Telegram
 
-DevCore turns a natural-language request into a traceable software delivery workflow with planning, approval, execution, review, and PR output.
+The WhatsApp interface can be integrated directly into team group chats, allowing developers to trigger tasks, review plans, and coordinate delivery without leaving their communication channel. This enables teams to collaborate with DevCore in the same place they already discuss features, bugs, and deployment decisions.
 
-### Why It Matters
 
-This improves delivery speed while preserving controls that generic coding copilots usually skip.
+===================================================
+IMPACT
+===================================================
+
+DevCore reduces the coordination overhead of software delivery while preserving key engineering safeguards.
+
+1. Faster development cycles
+Tasks can move from request to pull request automatically, reducing the manual effort required to ship smaller changes.
+
+2. Safer AI-assisted development
+The plan approval gate and reviewer agents help prevent risky, poorly structured, or misaligned code from reaching the repository.
+
+3. Workflow-level automation
+Unlike traditional code copilots, DevCore automates the entire delivery workflow, not just code generation.
+
+4. Collaborative development through messaging platforms
+By integrating with WhatsApp group chats, DevCore allows engineering teams to request features, approve architecture plans, and monitor delivery progress directly inside their team conversations. This makes structured software delivery accessible within the same environment where teams already collaborate.
