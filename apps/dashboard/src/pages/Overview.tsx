@@ -36,7 +36,7 @@ export default function OverviewPage({ linkedRepo }: OverviewProps) {
         <h1 className="text-2xl font-black text-white tracking-tight">
           Mission Control
         </h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <p className="text-gray-400 text-sm mt-1">
           AI engineering control center — submit tasks, review plans, ship code.
         </p>
       </div>
@@ -77,7 +77,7 @@ export default function OverviewPage({ linkedRepo }: OverviewProps) {
                 <span className={s.color}>{s.icon}</span>
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-[0.12em] leading-none mb-1">{s.label}</p>
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.12em] leading-none mb-1">{s.label}</p>
                 <p className={`text-4xl font-black leading-none tabular-nums ${s.color}`}>{s.value}</p>
               </div>
             </div>
@@ -88,26 +88,26 @@ export default function OverviewPage({ linkedRepo }: OverviewProps) {
         <div className="grid sm:grid-cols-2 gap-3">
           <Link
             to="/new-task"
-            className="group flex items-center gap-4 px-5 py-4 rounded-2xl border border-white/[0.06] hover:border-brand/30 hover:bg-brand/5 transition-all duration-200"
+            className="group flex items-center gap-4 px-5 py-4 rounded-2xl bg-brand hover:bg-brand-dark shadow-[0_0_24px_rgba(255,90,32,0.18)] hover:shadow-[0_0_32px_rgba(255,90,32,0.32)] transition-all duration-200"
           >
-            <span className="text-brand text-xl font-light">+</span>
+            <span className="text-black text-xl font-light">+</span>
             <div>
-              <p className="text-sm font-semibold text-white group-hover:text-brand transition-colors">New Task</p>
-              <p className="text-xs text-gray-600">Submit a coding task description</p>
+              <p className="text-sm font-bold text-black">New Task</p>
+              <p className="text-xs text-black/60">Submit a coding task description</p>
             </div>
-            <span className="ml-auto text-gray-700 group-hover:text-brand transition-colors text-sm">→</span>
+            <span className="ml-auto text-black/50 group-hover:text-black transition-colors text-sm">→</span>
           </Link>
 
           <Link
             to="/runs"
             className="group flex items-center gap-4 px-5 py-4 rounded-2xl border border-white/[0.06] hover:border-white/[0.14] hover:bg-white/[0.03] transition-all duration-200"
           >
-            <span className="text-gray-500 text-xl">≡</span>
+            <span className="text-gray-400 text-xl">≡</span>
             <div>
               <p className="text-sm font-semibold text-white">All Runs</p>
-              <p className="text-xs text-gray-600">View run history and details</p>
+              <p className="text-xs text-gray-500">View run history and details</p>
             </div>
-            <span className="ml-auto text-gray-700 group-hover:text-gray-400 transition-colors text-sm">→</span>
+            <span className="ml-auto text-gray-500 group-hover:text-gray-300 transition-colors text-sm">→</span>
           </Link>
         </div>
       </div>
@@ -115,10 +115,10 @@ export default function OverviewPage({ linkedRepo }: OverviewProps) {
       {/* Recent runs — unified container with dividers */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">
             Recent Runs
           </h2>
-          <Link to="/runs" className="text-xs text-gray-600 hover:text-gray-300 transition-colors">
+          <Link to="/runs" className="text-xs text-gray-500 hover:text-gray-200 transition-colors">
             View all →
           </Link>
         </div>
@@ -140,7 +140,7 @@ export default function OverviewPage({ linkedRepo }: OverviewProps) {
           <div className="card text-center py-12">
             <p className="text-3xl mb-3">🤖</p>
             <p className="text-sm font-medium text-gray-400">No runs yet</p>
-            <p className="text-xs text-gray-600 mt-1">Submit your first task to get started</p>
+            <p className="text-xs text-gray-500 mt-1">Submit your first task to get started</p>
             <Link to="/new-task" className="btn-primary mt-4 inline-flex">Submit a Task</Link>
           </div>
         ) : (

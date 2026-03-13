@@ -32,19 +32,19 @@ export default function RunCard({ run }: RunCardProps) {
 
           {/* Meta */}
           <div className="flex flex-wrap items-center gap-2 mt-2">
-            <span className="font-mono text-xs text-gray-500 bg-gray-800 group-hover:bg-gray-700 px-1.5 py-0.5 rounded transition-colors">{run.repo}</span>
+            <span className="font-mono text-xs text-gray-400 bg-gray-800 group-hover:bg-gray-700 px-1.5 py-0.5 rounded transition-colors">{run.repo}</span>
             {run.issueNumber && (
               <a
                 href={run.issueUrl || '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="text-xs text-gray-600 hover:text-brand transition-colors"
+                className="text-xs text-gray-500 hover:text-brand transition-colors"
               >
                 #{run.issueNumber}
               </a>
             )}
-            <span className="text-xs text-gray-600">{timeAgo(run.createdAt)}</span>
+            <span className="text-xs text-gray-500">{timeAgo(run.createdAt)}</span>
           </div>
 
           {/* Branch / PR */}
