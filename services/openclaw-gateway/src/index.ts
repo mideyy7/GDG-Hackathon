@@ -197,6 +197,13 @@ app.get('/api/auth/github/callback', async (req: Request, res: Response): Promis
             return res.status(500).send('Database not configured on server');
         }
 
+        // Web provider: redirect back to the dashboard
+        if (provider === 'web') {
+            const dashboardUrl = process.env.DASHBOARD_URL || 'http://localhost:3005';
+            const redirectUrl = decodedState.redirectUrl || `${dashboardUrl}/auth/success`;
+            return res.redirect(`${redirectUrl}?userId=${encodeURIComponent(userId)}`);
+        }
+
         // Fire-and-forget: send a proactive confirmation message to the user's chat
         if (chatId) {
             const proactiveMessage = `✅ GitHub login successful! You're all set.\n\nNext step: link your repository with /repo <owner>/<repo>, then start submitting tasks with /task <description>.`;
@@ -516,6 +523,189 @@ app.post('/api/ingress/message', async (req: Request, res: Response): Promise<an
     }
 
     res.status(200).json({ success: true, message: 'Message ingested' });
+});
+
+// ─── Web API Routes ──────────────────────────────────────────────────────────
+// These routes are consumed by the Web Mission Control dashboard.
+// Authentication: userId passed as X-Session-Token header (web-generated UUID).
+
+const getWebUserId = (req: Request): string | null => {
+    const token = req.headers['x-session-token'];
+    if (!token || typeof token !== 'string') return null;
+    return token.trim() || null;
+};
+
+// GET /api/web/me — return GitHub auth + repo status for web user
+app.get('/api/web/me', async (req: Request, res: Response): Promise<any> => {
+    const userId = getWebUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Missing X-Session-Token header' });
+    if (!supabase) return res.status(500).json({ error: 'Database not configured' });
+
+    const { data, error } = await supabase
+        .from('user_preferences')
+        .select('github_token, github_repo')
+        .eq('user_id', userId)
+        .single();
+
+    if (error || !data) {
+        return res.status(200).json({ authenticated: false, linkedRepo: null });
+    }
+
+    return res.status(200).json({
+        authenticated: !!data.github_token,
+        linkedRepo: data.github_repo || null,
+    });
+});
+
+// GET /api/web/repos — list accessible GitHub repos for web user
+app.get('/api/web/repos', async (req: Request, res: Response): Promise<any> => {
+    const userId = getWebUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Missing X-Session-Token header' });
+    if (!supabase) return res.status(500).json({ error: 'Database not configured' });
+
+    const { data, error } = await supabase
+        .from('user_preferences')
+        .select('github_token')
+        .eq('user_id', userId)
+        .single();
+
+    if (error || !data?.github_token) {
+        return res.status(401).json({ error: 'GitHub not connected. Complete OAuth first.' });
+    }
+
+    try {
+        const response = await axios.get(
+            'https://api.github.com/user/repos?sort=updated&per_page=50&type=all',
+            {
+                headers: {
+                    Authorization: `Bearer ${data.github_token}`,
+                    Accept: 'application/vnd.github.v3+json',
+                },
+                timeout: GATEWAY_GITHUB_REPOS_TIMEOUT_MS,
+            }
+        );
+        const repos = response.data.map((r: any) => ({
+            fullName: r.full_name,
+            name: r.name,
+            owner: r.owner.login,
+            private: r.private,
+            defaultBranch: r.default_branch,
+            updatedAt: r.updated_at,
+            description: r.description,
+        }));
+        return res.status(200).json({ repos });
+    } catch (err: any) {
+        console.error('[Gateway] Failed to fetch GitHub repos for web user:', err.message);
+        return res.status(502).json({ error: 'Failed to fetch repositories from GitHub' });
+    }
+});
+
+// POST /api/web/repo-link — link a repository for the web user
+app.post('/api/web/repo-link', async (req: Request, res: Response): Promise<any> => {
+    const userId = getWebUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Missing X-Session-Token header' });
+    if (!supabase) return res.status(500).json({ error: 'Database not configured' });
+
+    const { repo } = req.body;
+    if (!repo || typeof repo !== 'string' || !repo.includes('/')) {
+        return res.status(400).json({ error: 'Invalid repo format. Expected "owner/name".' });
+    }
+
+    const { data: userData } = await supabase
+        .from('user_preferences')
+        .select('github_token')
+        .eq('user_id', userId)
+        .single();
+
+    if (!userData?.github_token) {
+        return res.status(401).json({ error: 'GitHub not connected. Complete OAuth first.' });
+    }
+
+    const { error } = await supabase
+        .from('user_preferences')
+        .upsert({ user_id: userId, github_repo: repo }, { onConflict: 'user_id' });
+
+    if (error) {
+        console.error('[Gateway] Failed to save web repo link:', error);
+        return res.status(500).json({ error: 'Failed to save repository link' });
+    }
+
+    return res.status(200).json({ success: true, linkedRepo: repo });
+});
+
+// POST /api/web/task — submit a new task from the web UI
+app.post('/api/web/task', async (req: Request, res: Response): Promise<any> => {
+    const userId = getWebUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Missing X-Session-Token header' });
+    if (!supabase) return res.status(500).json({ error: 'Database not configured' });
+
+    const { description, repo } = req.body;
+    if (!description || typeof description !== 'string' || !description.trim()) {
+        return res.status(400).json({ error: 'Task description is required.' });
+    }
+
+    const { data: userPrefs, error: prefsError } = await supabase
+        .from('user_preferences')
+        .select('github_token, github_repo')
+        .eq('user_id', userId)
+        .single();
+
+    if (prefsError || !userPrefs) {
+        return res.status(401).json({ error: 'Account not found. Please connect GitHub first.' });
+    }
+    if (!userPrefs.github_token) {
+        return res.status(401).json({ error: 'GitHub not connected. Complete OAuth first.' });
+    }
+
+    const targetRepo = repo || userPrefs.github_repo;
+    if (!targetRepo) {
+        return res.status(400).json({ error: 'No repository linked. Link a repo before submitting a task.' });
+    }
+
+    const repoParts = targetRepo.split('/');
+    if (repoParts.length !== 2) {
+        return res.status(400).json({ error: 'Invalid repository format.' });
+    }
+
+    const intakePayload: import('@devclaw/contracts').IntakeRequest = {
+        requestId: crypto.randomUUID(),
+        userId,
+        channel: 'web',
+        repo: { owner: repoParts[0], name: repoParts[1] },
+        message: description.trim(),
+        timestampIso: new Date().toISOString(),
+    };
+
+    try {
+        const orchResponse = await postToOrchestrator('/api/task', intakePayload, GATEWAY_ORCHESTRATOR_TASK_TIMEOUT_MS);
+        return res.status(200).json(orchResponse);
+    } catch (err: any) {
+        const status = err.response?.status;
+        const detail = err.response?.data?.error || err.message;
+        console.error('[Gateway] Web task dispatch failed:', detail);
+        if (status === 400) return res.status(400).json({ error: detail });
+        if (status === 502) return res.status(502).json({ error: `GitHub issue creation failed: ${detail}` });
+        return res.status(503).json({ error: 'Orchestrator unavailable. Try again shortly.' });
+    }
+});
+
+// GET /api/web/auth/github — initiate OAuth for web (userId in query or X-Session-Token)
+app.get('/api/web/auth/github', (req: Request, res: Response): any => {
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    if (!clientId) return res.status(500).json({ error: 'GitHub OAuth not configured' });
+
+    const userId = (req.query.userId as string) || getWebUserId(req) || '';
+    if (!userId) return res.status(400).json({ error: 'userId is required' });
+
+    const dashboardUrl = process.env.DASHBOARD_URL || 'http://localhost:3005';
+    const redirectUrl = `${dashboardUrl}/auth/success`;
+    const state = Buffer.from(JSON.stringify({ userId, provider: 'web', redirectUrl })).toString('base64');
+
+    const redirectUri = process.env.GITHUB_CALLBACK_URL?.replace(/\/+$/, '');
+    const params = new URLSearchParams({ client_id: clientId, scope: 'repo', state });
+    if (redirectUri) params.set('redirect_uri', redirectUri);
+
+    res.redirect(`https://github.com/login/oauth/authorize?${params}`);
 });
 
 // Health check endpoint

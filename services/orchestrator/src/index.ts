@@ -202,6 +202,13 @@ app.post('/api/task', async (req: Request, res: Response): Promise<any> => {
             return;
         }
 
+        // ── Emit plan_ready event for SSE clients ────────────────────────────────
+        await persistAndEmitEvent(createRunEvent(
+            runId, 'pending_approval', 'plan_ready',
+            `Architecture plan ready — ${plan?.affectedFiles?.length || 0} files affected`,
+            { planId: plan?.planId, summary: plan?.summary }
+        ));
+
         // ── Step 4: Persist task_run to Supabase ─────────────────────────────────
         if (supabase) {
             const { error: dbError } = await supabase.from('task_runs').upsert(
@@ -835,6 +842,392 @@ app.post('/api/pr-amend', async (req: Request, res: Response): Promise<any> => {
             }
         }
     })();
+});
+
+// ─── Web Dashboard Routes ─────────────────────────────────────────────────────
+// All routes require X-Session-Token header (web userId from dashboard).
+
+const getWebUserId = (req: Request): string | null => {
+    const token = req.headers['x-session-token'];
+    if (!token || typeof token !== 'string') return null;
+    return token.trim() || null;
+};
+
+// In-memory SSE clients map: runId → Set of Response objects
+const sseClients = new Map<string, Set<Response>>();
+
+export const emitRunEvent = (runId: string, event: import('@devclaw/contracts').RunEvent): void => {
+    const clients = sseClients.get(runId);
+    if (!clients || clients.size === 0) return;
+
+    const payload = `data: ${JSON.stringify(event)}\n\n`;
+    for (const client of clients) {
+        try {
+            client.write(payload);
+        } catch {
+            // Client disconnected — will be cleaned up on 'close'
+        }
+    }
+};
+
+// Persist a run event to Supabase run_events table and emit to SSE clients
+const persistAndEmitEvent = async (event: import('@devclaw/contracts').RunEvent): Promise<void> => {
+    if (supabase) {
+        supabase.from('run_events').insert({
+            id: event.id,
+            run_id: event.runId,
+            stage: event.stage,
+            event_type: event.eventType,
+            message: event.message,
+            data: event.data || {},
+            created_at: event.createdAt,
+        }).then(({ error }) => {
+            if (error) console.warn('[Orchestrator] Failed to persist run_event:', error.message);
+        });
+    }
+    emitRunEvent(event.runId, event);
+};
+
+export const createRunEvent = (
+    runId: string,
+    stage: string,
+    eventType: import('@devclaw/contracts').RunEventType,
+    message: string,
+    data?: Record<string, unknown>
+): import('@devclaw/contracts').RunEvent => ({
+    id: uuidv4(),
+    runId,
+    stage,
+    eventType,
+    message,
+    data,
+    createdAt: new Date().toISOString(),
+});
+
+// GET /api/runs — list runs for a web user (requires X-Session-Token)
+app.get('/api/runs', async (req: Request, res: Response): Promise<any> => {
+    const userId = getWebUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Missing X-Session-Token header' });
+    if (!supabase) return res.status(500).json({ error: 'Supabase not configured' });
+
+    const limit = Math.min(Number(req.query.limit) || 20, 100);
+    const offset = Number(req.query.offset) || 0;
+
+    const { data, error } = await supabase
+        .from('task_runs')
+        .select('id, plan_id, user_id, repo, issue_url, issue_number, description, status, channel, branch_name, pr_url, pr_number, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+
+    if (error) {
+        console.error('[Orchestrator] Failed to list runs:', error.message);
+        return res.status(500).json({ error: 'Failed to fetch runs' });
+    }
+
+    const runs = (data || []).map((r: any) => ({
+        id: r.id,
+        planId: r.plan_id,
+        userId: r.user_id,
+        repo: r.repo,
+        issueUrl: r.issue_url,
+        issueNumber: r.issue_number,
+        description: r.description,
+        status: r.status,
+        channel: r.channel,
+        branchName: r.branch_name,
+        prUrl: r.pr_url,
+        prNumber: r.pr_number,
+        createdAt: r.created_at,
+    }));
+
+    return res.status(200).json({ runs, total: runs.length, offset, limit });
+});
+
+// GET /api/runs/:runId — get a single run's details
+app.get('/api/runs/:runId', async (req: Request, res: Response): Promise<any> => {
+    const userId = getWebUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Missing X-Session-Token header' });
+    if (!supabase) return res.status(500).json({ error: 'Supabase not configured' });
+
+    const { runId } = req.params;
+
+    const { data, error } = await supabase
+        .from('task_runs')
+        .select('*')
+        .eq('id', runId)
+        .eq('user_id', userId)
+        .single();
+
+    if (error || !data) {
+        return res.status(404).json({ error: 'Run not found' });
+    }
+
+    return res.status(200).json({
+        id: data.id,
+        planId: data.plan_id,
+        planDetails: data.plan_details,
+        userId: data.user_id,
+        repo: data.repo,
+        issueUrl: data.issue_url,
+        issueNumber: data.issue_number,
+        description: data.description,
+        status: data.status,
+        channel: data.channel,
+        branchName: data.branch_name,
+        prUrl: data.pr_url,
+        prNumber: data.pr_number,
+        createdAt: data.created_at,
+    });
+});
+
+// POST /api/runs/:runId/approve — approve a plan from web UI
+app.post('/api/runs/:runId/approve', async (req: Request, res: Response): Promise<any> => {
+    const userId = getWebUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Missing X-Session-Token header' });
+    if (!supabase) return res.status(500).json({ error: 'Supabase not configured' });
+
+    const { runId } = req.params;
+
+    // Verify ownership
+    const { data: run } = await supabase
+        .from('task_runs')
+        .select('id, user_id, plan_id')
+        .eq('id', runId)
+        .eq('user_id', userId)
+        .single();
+
+    if (!run) return res.status(404).json({ error: 'Run not found' });
+
+    // Delegate to the existing /api/approve handler logic by calling it internally
+    // Re-use the planId from the run
+    const fakeReq = { body: { runId, planId: run.plan_id } } as Request;
+    const fakeRes = {
+        status: (code: number) => ({
+            json: (body: any) => res.status(code).json(body),
+        }),
+    } as unknown as Response;
+
+    // Directly handle: update status + trigger async execution
+    const { data: updated, error } = await supabase
+        .from('task_runs')
+        .update({ status: 'approved' })
+        .eq('id', runId)
+        .eq('status', 'pending_approval')
+        .select()
+        .single();
+
+    if (error || !updated) {
+        const { data: existing } = await supabase.from('task_runs').select('id, status').eq('id', runId).single();
+        if (!existing) return res.status(404).json({ error: 'Run not found' });
+        return res.status(200).json({ success: true, message: 'Already processing', status: existing.status });
+    }
+
+    await persistAndEmitEvent(createRunEvent(runId, 'approved', 'stage_change', 'Task approved — starting execution'));
+
+    res.status(200).json({ success: true, message: 'Task approved and queued for execution', run: updated });
+
+    // Async execution (same logic as /api/approve)
+    (async () => {
+        try {
+            const approvedPlan = resolveApprovedPlan(updated.plan_details);
+            if (!approvedPlan || !updated.repo) return;
+
+            const executionSubTasks = buildExecutionSubTasks(approvedPlan);
+            const preferredBranch = resolvePreferredExecutionBranch(updated.plan_details, updated.plan_id, updated.description);
+
+            let githubToken: string | undefined;
+            if (updated.user_id) {
+                const { data: userPrefs } = await supabase.from('user_preferences').select('github_token').eq('user_id', updated.user_id).single();
+                if (userPrefs?.github_token) githubToken = userPrefs.github_token;
+            }
+
+            await persistAndEmitEvent(createRunEvent(runId, 'generating', 'stage_change', 'Provisioning isolated workspace'));
+
+            const isolatedEnvironment = await provisionIsolatedExecutionEnvironment({
+                runId: updated.id,
+                repoFullName: updated.repo,
+                planId: approvedPlan.planId || updated.plan_id,
+                description: updated.description || approvedPlan.summary,
+                planDetails: updated.plan_details,
+                preferredBranchName: preferredBranch.branchName,
+                githubToken,
+            });
+
+            supabase.from('task_runs').update({ status: 'generating', branch_name: isolatedEnvironment.branchName }).eq('id', updated.id).then(() => {});
+
+            await persistAndEmitEvent(createRunEvent(runId, 'generating', 'execution_started', `Workspace ready on branch ${isolatedEnvironment.branchName}`, { branch: isolatedEnvironment.branchName }));
+
+            const execution = await orchestrationEngine.execute({
+                runId: updated.id,
+                planId: approvedPlan.planId || updated.plan_id,
+                requestId: approvedPlan.requestId,
+                userId: updated.user_id,
+                repo: updated.repo,
+                issueNumber: updated.issue_number,
+                issueUrl: updated.issue_url,
+                description: updated.description,
+                planDetails: approvedPlan,
+                executionSubTasks,
+                isolatedEnvironmentPath: isolatedEnvironment.workspacePath,
+                executionBranchName: isolatedEnvironment.branchName,
+            });
+
+            if (execution.branchPush) {
+                const branchName = (execution.branchPush as any)?.branchName || 'n/a';
+                const pushed = (execution.branchPush as any)?.pushed;
+                supabase.from('task_runs').update({ status: 'completed', branch_name: branchName }).eq('id', updated.id).then(() => {});
+
+                if ((execution as any).prUrl) {
+                    supabase.from('task_runs').update({ pr_url: (execution as any).prUrl, pr_number: (execution as any).prNumber }).eq('id', updated.id).then(() => {});
+                }
+
+                await persistAndEmitEvent(createRunEvent(runId, 'completed', 'completed', `Code ready on branch ${branchName}`, {
+                    branchName,
+                    pushed,
+                    prUrl: (execution as any).prUrl,
+                }));
+            }
+        } catch (err: any) {
+            const secData = err?.response?.data;
+            if (err?.response?.status === 422 && secData?.error === 'security_blocked') {
+                supabase.from('task_runs').update({ status: 'security_blocked' }).eq('id', runId).then(() => {});
+                await persistAndEmitEvent(createRunEvent(runId, 'security_blocked', 'error', 'Security gate blocked execution', { vulnerabilities: secData.vulnerabilities }));
+            } else {
+                supabase.from('task_runs').update({ status: 'failed' }).eq('id', runId).then(() => {});
+                await persistAndEmitEvent(createRunEvent(runId, 'failed', 'error', err?.message || 'Execution failed'));
+            }
+        }
+    })();
+});
+
+// POST /api/runs/:runId/reject — reject a plan from web UI
+app.post('/api/runs/:runId/reject', async (req: Request, res: Response): Promise<any> => {
+    const userId = getWebUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Missing X-Session-Token header' });
+    if (!supabase) return res.status(500).json({ error: 'Supabase not configured' });
+
+    const { runId } = req.params;
+
+    const { data: updated, error } = await supabase
+        .from('task_runs')
+        .update({ status: 'rejected' })
+        .eq('id', runId)
+        .eq('user_id', userId)
+        .select()
+        .single();
+
+    if (error || !updated) return res.status(404).json({ error: 'Run not found' });
+
+    await persistAndEmitEvent(createRunEvent(runId, 'rejected', 'stage_change', 'Plan rejected by user'));
+    return res.status(200).json({ success: true, message: 'Plan rejected', run: updated });
+});
+
+// POST /api/runs/:runId/refine — refine a plan from web UI
+app.post('/api/runs/:runId/refine', async (req: Request, res: Response): Promise<any> => {
+    const userId = getWebUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Missing X-Session-Token header' });
+    if (!supabase) return res.status(500).json({ error: 'Supabase not configured' });
+
+    const { runId } = req.params;
+    const { refinement } = req.body;
+
+    if (!refinement || typeof refinement !== 'string' || !refinement.trim()) {
+        return res.status(400).json({ error: 'Refinement instructions are required' });
+    }
+
+    const { data: existingRun, error } = await supabase
+        .from('task_runs')
+        .select('*')
+        .eq('id', runId)
+        .eq('user_id', userId)
+        .single();
+
+    if (error || !existingRun) return res.status(404).json({ error: 'Run not found' });
+    if (existingRun.status !== 'pending_approval') {
+        return res.status(400).json({ error: `Cannot refine task in status "${existingRun.status}"` });
+    }
+
+    await persistAndEmitEvent(createRunEvent(runId, 'planning', 'stage_change', 'Refining plan with user instructions'));
+
+    res.status(200).json({ success: true, message: 'Refining plan...' });
+
+    (async () => {
+        try {
+            const refinedPlan = await orchestrationEngine.refine({
+                planId: existingRun.plan_id,
+                repoFullName: existingRun.repo,
+                changeRequest: refinement,
+                issueNumber: existingRun.issue_number,
+            });
+
+            await supabase.from('task_runs').update({ plan_id: refinedPlan.planId, plan_details: refinedPlan }).eq('id', runId);
+            await persistAndEmitEvent(createRunEvent(runId, 'pending_approval', 'plan_ready', 'Plan updated — awaiting approval', { planId: refinedPlan.planId }));
+        } catch (err: any) {
+            await persistAndEmitEvent(createRunEvent(runId, 'failed', 'error', `Refinement failed: ${err.message}`));
+        }
+    })();
+});
+
+// GET /api/runs/:runId/events — SSE stream of run events
+// Accepts token via X-Session-Token header OR ?token= query param (for EventSource)
+app.get('/api/runs/:runId/events', async (req: Request, res: Response): Promise<any> => {
+    const userId = getWebUserId(req) || (req.query.token as string) || null;
+    if (!userId) return res.status(401).json({ error: 'Missing session token' });
+    if (!supabase) return res.status(500).json({ error: 'Supabase not configured' });
+
+    const { runId } = req.params;
+
+    // Verify ownership
+    const { data: run } = await supabase.from('task_runs').select('id, user_id').eq('id', runId).eq('user_id', userId).single();
+    if (!run) return res.status(404).json({ error: 'Run not found' });
+
+    // Set SSE headers
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders();
+
+    // Send historic events first
+    const { data: historicEvents } = await supabase
+        .from('run_events')
+        .select('*')
+        .eq('run_id', runId)
+        .order('created_at', { ascending: true });
+
+    if (historicEvents) {
+        for (const e of historicEvents) {
+            const event: import('@devclaw/contracts').RunEvent = {
+                id: e.id,
+                runId: e.run_id,
+                stage: e.stage,
+                eventType: e.event_type,
+                message: e.message,
+                data: e.data,
+                createdAt: e.created_at,
+            };
+            res.write(`data: ${JSON.stringify(event)}\n\n`);
+        }
+    }
+
+    // Register client for live events
+    if (!sseClients.has(runId)) sseClients.set(runId, new Set());
+    sseClients.get(runId)!.add(res);
+
+    // Heartbeat every 15s to keep connection alive
+    const heartbeat = setInterval(() => {
+        try { res.write(': heartbeat\n\n'); } catch { clearInterval(heartbeat); }
+    }, 15_000);
+
+    req.on('close', () => {
+        clearInterval(heartbeat);
+        const clients = sseClients.get(runId);
+        if (clients) {
+            clients.delete(res);
+            if (clients.size === 0) sseClients.delete(runId);
+        }
+    });
 });
 
 // ─── Server Boot ─────────────────────────────────────────────────────────────

@@ -1,0 +1,178 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-gray-950 text-gray-100 font-sans antialiased;
+  }
+
+  ::selection {
+    @apply bg-red-brand text-white;
+  }
+
+  /* Dark scrollbar */
+  ::-webkit-scrollbar        { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track  { @apply bg-gray-900; }
+  ::-webkit-scrollbar-thumb  { @apply bg-red-brand rounded-full; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-red-brand text-white font-semibold
+           rounded-lg text-sm hover:bg-red-dark transition-all duration-200
+           shadow-lg shadow-red-brand/20 hover:-translate-y-0.5 active:translate-y-0
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-gray-800 text-gray-200 font-medium
+           rounded-lg text-sm border border-gray-700 hover:border-red-brand hover:text-white
+           transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-4 py-2 text-gray-400 font-medium
+           rounded-lg text-sm hover:text-white hover:bg-gray-800
+           transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-gray-900 rounded-xl border border-gray-800 p-5;
+  }
+
+  .card-hover {
+    @apply card hover:border-gray-700 transition-colors duration-200;
+  }
+
+  .input {
+    @apply w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100
+           placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-brand/40
+           focus:border-red-brand transition-colors duration-200;
+  }
+
+  .textarea {
+    @apply input resize-none;
+  }
+
+  .label {
+    @apply block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold;
+  }
+
+  .section-divider {
+    @apply border-t border-gray-800 my-6;
+  }
+
+  .mono {
+    @apply font-mono text-sm;
+  }
+}
+
+/* Film grain overlay (subtle, dark UI variant) */
+.grain-overlay {
+  position: fixed;
+  inset: -20%;
+  width: 140%;
+  height: 140%;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  animation: grain 0.8s steps(1) infinite;
+  mix-blend-mode: overlay;
+}
+
+/* Scan beam */
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(232, 25, 44, 0) 10%,
+    rgba(232, 25, 44, 0.5) 50%,
+    rgba(232, 25, 44, 0) 90%,
+    transparent 100%
+  );
+  box-shadow: 0 0 8px rgba(232, 25, 44, 0.4);
+  animation: scan 9s linear infinite;
+  animation-delay: 2s;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Terminal cursor */
+.cursor-blink::after {
+  content: '▋';
+  animation: blink 1s step-end infinite;
+  color: #E8192C;
+}
+
+/* Log row */
+.log-row {
+  @apply flex gap-3 py-1.5 border-b border-gray-800/60 last:border-0 items-start;
+}
+
+.log-row-timestamp {
+  @apply text-gray-600 font-mono text-xs whitespace-nowrap pt-0.5 min-w-[90px];
+}
+
+.log-row-badge {
+  @apply badge whitespace-nowrap min-w-[100px] justify-center;
+}
+
+.log-row-message {
+  @apply text-sm text-gray-300 leading-relaxed flex-1;
+}
+
+/* Stage progress indicator */
+.stage-step {
+  @apply flex items-center gap-2 text-sm;
+}
+
+.stage-step-dot {
+  @apply w-2 h-2 rounded-full flex-shrink-0;
+}
+
+/* Highlight code paths */
+.filepath {
+  @apply font-mono text-xs bg-gray-800 text-red-400 px-1.5 py-0.5 rounded border border-gray-700;
+}
+
+/* Admin scrollbar (inside panels) */
+.admin-scroll::-webkit-scrollbar        { width: 3px; }
+.admin-scroll::-webkit-scrollbar-track  { background: transparent; }
+.admin-scroll::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.08); border-radius: 9999px; }
+
+/* Animated underline */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: #E8192C;
+  transition: width 0.2s ease;
+}
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}

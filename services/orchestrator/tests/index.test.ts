@@ -10,6 +10,11 @@ jest.mock('@supabase/supabase-js', () => {
         match: jest.fn().mockReturnThis(),
         single: jest.fn(),
         upsert: jest.fn().mockReturnThis(),
+        insert: jest.fn().mockResolvedValue({ data: null, error: null }),
+        // Allow .then() on the chain (needed for fire-and-forget .update().eq().then())
+        then: jest.fn((resolve: (v: any) => void) => { resolve({ data: null, error: null }); return Promise.resolve({ data: null, error: null }); }),
+        range: jest.fn().mockReturnThis(),
+        order: jest.fn().mockReturnThis(),
     };
     return {
         createClient: jest.fn(() => mockSupabase),
@@ -84,6 +89,14 @@ describe('Orchestrator API', () => {
         ((mockSupabase as any).eq as jest.Mock).mockReturnValue(mockSupabase);
         ((mockSupabase as any).update as jest.Mock).mockReturnValue(mockSupabase);
         ((mockSupabase as any).match as jest.Mock).mockReturnValue(mockSupabase);
+        ((mockSupabase as any).insert as jest.Mock).mockResolvedValue({ data: null, error: null });
+        ((mockSupabase as any).range as jest.Mock).mockReturnValue(mockSupabase);
+        ((mockSupabase as any).order as jest.Mock).mockReturnValue(mockSupabase);
+        // Allow .then() on the chain for fire-and-forget patterns
+        ((mockSupabase as any).then as jest.Mock).mockImplementation((resolve: (v: any) => void) => {
+            resolve({ data: null, error: null });
+            return Promise.resolve({ data: null, error: null });
+        });
         ((mockSupabase as any).single as jest.Mock).mockImplementation(() => {
             // Depending on the mock, return valid task or github token
             return Promise.resolve({

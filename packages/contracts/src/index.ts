@@ -1,6 +1,55 @@
+export type RunStatus =
+    | "pending_approval"
+    | "approved"
+    | "generating"
+    | "completed"
+    | "rejected"
+    | "failed"
+    | "security_blocked";
+
+export type RunEventType =
+    | "stage_change"
+    | "log"
+    | "plan_ready"
+    | "execution_started"
+    | "agent_iteration"
+    | "security_scan"
+    | "branch_pushed"
+    | "pr_opened"
+    | "error"
+    | "completed";
+
+export interface RunEvent {
+    id: string;
+    runId: string;
+    stage: string;
+    eventType: RunEventType;
+    message: string;
+    data?: Record<string, unknown>;
+    createdAt: string;
+}
+
+export interface TaskRun {
+    id: string;
+    planId: string | null;
+    planDetails: ArchitecturePlan | null;
+    userId: string;
+    repo: string;
+    issueUrl: string | null;
+    issueNumber: number | null;
+    description: string;
+    status: RunStatus;
+    channel: "telegram" | "whatsapp" | "web";
+    chatId: string | null;
+    branchName: string | null;
+    prUrl: string | null;
+    prNumber: number | null;
+    createdAt: string;
+}
+
 export interface IntakeRequest {
     requestId: string;
-    channel: "telegram" | "whatsapp";
+    channel: "telegram" | "whatsapp" | "web";
     userId: string;
     repo: {
         owner: string;
