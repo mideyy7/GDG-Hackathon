@@ -1,9 +1,9 @@
 # DevClaw
 
-> **Send a WhatsApp message. Get a GitHub pull request.**
+> **Describe a code change. Get a GitHub pull request.**
 > No IDE. No manual steps. No waiting.
 
-DevClaw is a **production-ready multi-agent AI system** that turns a plain-English task description into reviewed, security-scanned, committed code on a GitHub branch — delivered back to you via WhatsApp or Telegram.
+DevClaw is a **production-ready multi-agent AI system** that turns a plain-English task description into reviewed, security-scanned, committed code on a GitHub branch — accessible via a **web dashboard**, WhatsApp, or Telegram.
 
 Built entirely on the **Z.AI GLM model ecosystem**, with each model matched to the cognitive complexity of its role.
 
@@ -11,11 +11,12 @@ Built entirely on the **Z.AI GLM model ecosystem**, with each model matched to t
 
 ## What it does
 
-- **Plan**: Send `/task` describing a code change — DevClaw analyses your full repo and returns a structured architecture plan for approval.
+- **Submit**: Describe a code change via the web dashboard, WhatsApp, or Telegram — DevClaw analyses your full repo and returns a structured architecture plan.
+- **Review & Approve**: Inspect the plan (files affected, agent assignments, risk flags) and approve, refine, or reject it — from the web UI or with a single chat command.
 - **Generate**: GLM-4.7-Flash writes the code; a second independent GLM-4.7-Flash instance reviews it, requesting rewrites until approved (up to 3 iterations).
 - **Test**: Changes run through `npm build + npm test` inside an ephemeral, network-isolated Docker sandbox — stderr is fed back to the generator if tests fail.
 - **Secure**: A dedicated GLM-4.7 security reviewer scans every diff for OWASP Top 10 vulnerabilities before anything is pushed.
-- **Deliver**: Branch is pushed to GitHub, PR is opened, and a link lands in your WhatsApp/Telegram — in under 3 minutes.
+- **Deliver**: Branch is pushed to GitHub, PR is opened, and the link is surfaced in your dashboard or sent via chat — in under 3 minutes.
 
 ---
 
@@ -24,12 +25,12 @@ Built entirely on the **Z.AI GLM model ecosystem**, with each model matched to t
 > Watch the 5-minute walkthrough: [Link to pitch video]
 
 **Live flow:**
-1. User sends `/task Change homepage button text from "Start the journey" to "Start journey"` via WhatsApp
-2. DevClaw plans the change, sends back an architecture plan for approval
-3. User approves with `/approve plan-abc123`
+1. User submits `Change homepage button text from "Start the journey" to "Start journey"` — via the web dashboard, WhatsApp, or Telegram
+2. DevClaw analyses the repo and returns a structured architecture plan
+3. User approves via the dashboard's plan view, or sends `/approve plan-abc123` in chat
 4. GLM-4.7-Flash generates the code change; a second GLM-4.7-Flash instance reviews it
 5. GLM-4.7 scans the diff for OWASP vulnerabilities
-6. Branch is pushed to GitHub, user receives a link via WhatsApp — in under 3 minutes
+6. Branch is pushed to GitHub — PR link appears in the dashboard and/or is sent via chat — in under 3 minutes
 
 ---
 
@@ -181,29 +182,30 @@ Expected output:
 [orchestrator] Listening on http://localhost:3010
 [engine]       Listening on http://localhost:3040
 [agent-runner] Listening on http://localhost:3030
+[dashboard]    Ready on http://localhost:3000
 ```
 
 ---
 
 ## How It Works
 
-1. User sends `/task <description>` via WhatsApp or Telegram.
+1. User submits a task via the **web dashboard** (`/new-task`), WhatsApp, or Telegram.
 2. Gateway authenticates the request and creates a GitHub issue.
 3. Orchestrator manages the lifecycle: `intake → plan → approve → execute`.
 4. OpenClaw Engine indexes the repo (RAG) and calls GLM-4.7 to produce a structured JSON plan.
-5. Plan is sent back to the user for approval (`/approve <planId>`).
+5. Plan is surfaced in the dashboard (files affected, agent assignments, risk flags) and/or sent via chat. User approves, refines, or rejects.
 6. Agent Runner spawns per-file sub-tasks: Generator → Reviewer loop (up to 3x rewrites).
 7. Docker sandbox runs `npm build + npm test`; stderr is fed back to Generator if tests fail.
 8. Security Reviewer (GLM-4.7) scans the full diff for OWASP Top 10. Critical findings block the push.
-9. Branch is pushed, PR is opened, and the user receives the PR link via chat.
+9. Branch is pushed, PR is opened — link appears in the dashboard run detail view and/or is sent via chat.
 
 ---
 
 ## System Architecture
 
 ```
-User (WhatsApp / Telegram)
-  |  /task Add dark mode to the settings page
+User (Web Dashboard / WhatsApp / Telegram)
+  |  Submit task: "Add dark mode to the settings page"
   v
 OpenClaw Gateway (port 3001)
   |  authenticate, route, create GitHub issue
@@ -291,7 +293,21 @@ All repo files are embedded with Z.AI `embedding-3` and stored in Supabase pgvec
 
 ---
 
-## Bot Commands
+## Interfaces
+
+### Web Dashboard
+
+The dashboard at `http://localhost:3000` (or your deployed URL) provides the full experience with richer UI than the bots:
+
+| Page | What you can do |
+|---|---|
+| `/` | Mission control — stats, active runs, quick actions |
+| `/repositories` | Browse and link a GitHub repo via OAuth |
+| `/new-task` | Submit a task with a free-text description (up to 2000 chars) |
+| `/runs` | List all runs, filter by status |
+| `/runs/:runId` | Full plan inspection (files, agents, risk flags), approve/refine/reject, live agent terminal, PR link |
+
+### Chat Commands (WhatsApp / Telegram)
 
 | Command | Description |
 |---|---|
@@ -311,6 +327,7 @@ All repo files are embedded with Z.AI `embedding-3` and stored in Supabase pgvec
 
 ```
 apps/
+  dashboard/        Web UI: task submission, plan approval, live agent terminal, run history
   landing-page/     Marketing site (React + Vite + Tailwind)
   telegram-bot/     Telegram intake + proactive push notifications
   whatsapp-bot/     WhatsApp intake + proactive push notifications
