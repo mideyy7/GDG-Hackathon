@@ -1,5 +1,26 @@
 import CrabSVG from './CrabSVG';
 
+const FIREFLY_COORDS = [
+  { x: 8, y: 20 },
+  { x: 18, y: 36 },
+  { x: 27, y: 14 },
+  { x: 34, y: 56 },
+  { x: 43, y: 28 },
+  { x: 51, y: 10 },
+  { x: 62, y: 38 },
+  { x: 72, y: 18 },
+  { x: 84, y: 44 },
+  { x: 92, y: 24 },
+  { x: 14, y: 70 },
+  { x: 25, y: 82 },
+  { x: 38, y: 74 },
+  { x: 49, y: 64 },
+  { x: 58, y: 86 },
+  { x: 69, y: 72 },
+  { x: 78, y: 92 },
+  { x: 87, y: 68 },
+];
+
 interface Props {
   onEnter: () => void;
 }
@@ -32,6 +53,34 @@ export default function LandingPage({ onEnter }: Props) {
           background: 'radial-gradient(circle at 50% 100%, rgba(255,90,32,0.03) 0%, transparent 50%)'
         }}
       />
+
+      {/* Fireflies layer */}
+      <div className="fireflies-layer absolute inset-0 z-0 pointer-events-none" aria-hidden>
+        {FIREFLY_COORDS.map((point, index) => {
+          const driftX = (index % 2 === 0 ? 1 : -1) * (12 + (index % 4) * 4);
+          const driftY = index % 3 === 0 ? 10 : -12;
+          const driftDuration = 7 + (index % 5) * 1.5;
+          const pulseDuration = 2.4 + (index % 4) * 0.55;
+          const size = 2 + (index % 3);
+
+          return (
+            <span
+              key={`${point.x}-${point.y}`}
+              className="firefly"
+              style={{
+                left: `${point.x}%`,
+                top: `${point.y}%`,
+                width: `${size}px`,
+                height: `${size}px`,
+                animationDuration: `${driftDuration}s, ${pulseDuration}s`,
+                animationDelay: `-${index * 0.9}s, -${index * 0.35}s`,
+                ['--drift-x' as string]: `${driftX}px`,
+                ['--drift-y' as string]: `${driftY}px`,
+              }}
+            />
+          );
+        })}
+      </div>
 
       {/* ── Main Content block ── */}
       <div className="relative z-10 flex-1 flex flex-col lg:flex-row items-center px-6 lg:px-20 lg:gap-20">
