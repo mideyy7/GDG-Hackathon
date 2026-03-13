@@ -1,4 +1,4 @@
-import { ArchitecturePlan } from '@devclaw/contracts';
+import { ArchitecturePlan } from '@coredev/contracts';
 
 export type PlanPhaseStatus = 'planned' | 'ready' | 'blocked';
 

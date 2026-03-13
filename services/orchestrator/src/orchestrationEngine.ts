@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ArchitecturePlan, IntakeRequest } from '@devclaw/contracts';
+import { ArchitecturePlan, IntakeRequest } from '@coredev/contracts';
 import { ExecutionSubTask } from './executionPreparation';
 
 const parsePositiveInt = (value: string | undefined, fallback: number): number => {

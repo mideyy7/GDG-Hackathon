@@ -484,7 +484,7 @@ app.post('/api/ingress/message', async (req: Request, res: Response): Promise<an
 
         // ── Dispatch to orchestrator ──────────────────────────────────────────
         const repoParts = userPrefs.github_repo.split('/');
-        const intakePayload: import('@devclaw/contracts').IntakeRequest = {
+        const intakePayload: import('@coredev/contracts').IntakeRequest = {
             requestId: crypto.randomUUID(),
             userId,
             channel: provider as "telegram" | "whatsapp",
@@ -667,7 +667,7 @@ app.post('/api/web/task', async (req: Request, res: Response): Promise<any> => {
         return res.status(400).json({ error: 'Invalid repository format.' });
     }
 
-    const intakePayload: import('@devclaw/contracts').IntakeRequest = {
+    const intakePayload: import('@coredev/contracts').IntakeRequest = {
         requestId: crypto.randomUUID(),
         userId,
         channel: 'web',
