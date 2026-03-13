@@ -100,7 +100,7 @@ export default function OverviewPage({ linkedRepo }: OverviewProps) {
 
           <Link
             to="/runs"
-            className="group flex items-center gap-4 px-5 py-4 rounded-2xl border border-white/[0.06] hover:border-white/[0.14] hover:bg-white/[0.03] transition-all duration-200"
+            className="group flex items-center gap-4 px-5 py-4 rounded-2xl border border-white/[0.10] bg-white/[0.04] hover:border-white/[0.18] hover:bg-white/[0.07] transition-all duration-200"
           >
             <span className="text-gray-400 text-xl">≡</span>
             <div>

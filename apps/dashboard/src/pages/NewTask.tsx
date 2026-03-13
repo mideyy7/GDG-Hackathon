@@ -82,7 +82,7 @@ export default function NewTaskPage({ linkedRepo }: NewTaskProps) {
             onChange={(e) => setDescription(e.target.value)}
             disabled={submitting}
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-400 mt-1">
             {description.length}/2000 characters
           </p>
         </div>
@@ -95,7 +95,7 @@ export default function NewTaskPage({ linkedRepo }: NewTaskProps) {
               <button
                 key={ex}
                 type="button"
-                className="text-xs text-gray-400 hover:text-gray-300 border border-gray-800 hover:border-gray-700 rounded-lg px-3 py-1.5 transition-colors text-left"
+                className="text-xs text-gray-300 hover:text-white border border-gray-700 hover:border-gray-500 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg px-3 py-1.5 transition-colors text-left"
                 onClick={() => setDescription(ex)}
                 disabled={submitting}
               >

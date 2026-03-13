@@ -64,8 +64,8 @@ export default function RunsPage() {
             onClick={() => setFilter(s)}
             className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
               filter === s
-                ? 'bg-gray-700 text-white'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/60'
+                ? 'bg-gray-500 text-white'
+                : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/60 hover:text-white'
             }`}
           >
             {s === 'all' ? 'All' : s.replace('_', ' ')}

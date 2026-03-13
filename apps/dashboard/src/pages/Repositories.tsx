@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { fetchGitHubRepos, linkRepository } from '../lib/api';
 import type { GitHubRepo } from '../lib/api';
 import { fetchUserStatus } from '../lib/api';
@@ -15,6 +15,7 @@ export default function RepositoriesPage({ onRepoLinked }: RepositoriesProps) {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [success, setSuccess] = useState<string | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     Promise.all([fetchGitHubRepos(), fetchUserStatus()])
@@ -52,7 +53,7 @@ export default function RepositoriesPage({ onRepoLinked }: RepositoriesProps) {
         <h1 className="text-2xl font-black text-white tracking-tight">
           Repositories
         </h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <p className="text-gray-400 text-sm mt-1">
           Select a GitHub repository to link as your active project.
         </p>
       </div>
@@ -62,7 +63,7 @@ export default function RepositoriesPage({ onRepoLinked }: RepositoriesProps) {
         <div className="card border-green-500/20 bg-green-500/5 flex items-center gap-3">
           <span className="w-2 h-2 rounded-full bg-green-400" />
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wider">Active Repository</p>
+            <p className="text-xs text-gray-400 uppercase tracking-wider">Active Repository</p>
             <p className="font-mono text-sm text-green-300">{linkedRepo}</p>
           </div>
         </div>
@@ -82,42 +83,63 @@ export default function RepositoriesPage({ onRepoLinked }: RepositoriesProps) {
 
       {/* Search */}
       {!loading && repos.length > 0 && (
-        <input
-          type="search"
-          className="input"
-          placeholder="Search repositories…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <div className="relative">
+          <input
+            ref={searchRef}
+            type="search"
+            className="input pr-9"
+            placeholder="Search repositories…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && searchRef.current?.blur()}
+          />
+          <button
+            type="button"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+            onClick={() => searchRef.current?.focus()}
+            tabIndex={-1}
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
       )}
 
       {/* Repo list */}
       {loading ? (
-        <div className="space-y-2">
+        <div className="rounded-2xl border border-white/[0.08] bg-gray-800/60 backdrop-blur-sm overflow-hidden divide-y divide-white/[0.06]">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="card animate-pulse">
-              <div className="h-4 bg-gray-800 rounded w-1/3 mb-1" />
-              <div className="h-3 bg-gray-800 rounded w-1/2" />
+            <div key={i} className="px-5 py-4 animate-pulse">
+              <div className="h-4 bg-gray-700 rounded w-1/3 mb-2" />
+              <div className="h-3 bg-gray-700 rounded w-1/2" />
             </div>
           ))}
         </div>
       ) : filtered.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-400">
             {repos.length === 0
               ? 'No repositories found on your GitHub account.'
               : 'No repositories match your search.'}
           </p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="rounded-2xl border border-white/[0.08] bg-gray-800/60 backdrop-blur-sm overflow-hidden divide-y divide-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
           {filtered.map((repo) => {
             const isLinked = repo.fullName === linkedRepo;
             const isLinking = linking === repo.fullName;
             return (
               <div
                 key={repo.fullName}
-                className={`card-hover flex items-center gap-4 ${isLinked ? 'border-green-500/20 bg-green-500/5' : ''}`}
+                className={`group flex items-center gap-4 px-5 py-4 transition-colors duration-150 hover:bg-white/[0.03] ${isLinked ? 'bg-green-500/[0.04]' : ''}`}
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -125,25 +147,25 @@ export default function RepositoriesPage({ onRepoLinked }: RepositoriesProps) {
                       {repo.fullName}
                     </p>
                     {repo.private && (
-                      <span className="badge bg-gray-700 text-gray-400 text-xs">private</span>
+                      <span className="badge bg-gray-700 text-gray-300 text-xs">private</span>
                     )}
                     {isLinked && (
                       <span className="badge bg-green-500/20 text-green-400 text-xs">active</span>
                     )}
                   </div>
                   {repo.description && (
-                    <p className="text-xs text-gray-500 truncate mt-0.5">
+                    <p className="text-xs text-gray-400 truncate mt-0.5">
                       {repo.description}
                     </p>
                   )}
-                  <p className="text-xs text-gray-700 mt-0.5 font-mono">
+                  <p className="text-xs text-gray-500 mt-0.5 font-mono">
                     {repo.defaultBranch} · updated{' '}
                     {new Date(repo.updatedAt).toLocaleDateString()}
                   </p>
                 </div>
 
                 <button
-                  className={isLinked ? 'btn-ghost text-xs text-green-400' : 'btn-secondary text-xs'}
+                  className={isLinked ? 'btn-ghost text-xs text-green-400' : 'btn-secondary text-xs hover:!bg-brand-dark hover:!text-white hover:!border-brand-dark'}
                   onClick={() => !isLinked && handleLink(repo.fullName)}
                   disabled={isLinking || isLinked}
                 >
