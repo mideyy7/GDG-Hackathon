@@ -1,4 +1,4 @@
-import { ArchitecturePlan } from '@devclaw/contracts';
+import { ArchitecturePlan } from '@coredev/contracts';
 import { OpenClawExecutionBlueprint, OpenClawPlanRecord } from './types';
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';

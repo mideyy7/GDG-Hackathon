@@ -233,7 +233,7 @@ app.post('/api/execute', async (req: Request, res: Response): Promise<any> => {
     if (source.toLowerCase() === 'agent-runner') {
         return res.status(409).json({
             error: 'Execution dispatch loop detected (agent-runner -> openclaw-engine -> agent-runner).',
-            hint: 'Set RUNNER_ENGINE=stub or RUNNER_ENGINE=docker when orchestrator uses EXECUTION_ENGINE=openclaw.',
+            hint: 'Set RUNNER_ENGINE=stub when orchestrator uses EXECUTION_ENGINE=openclaw.',
         });
     }
 

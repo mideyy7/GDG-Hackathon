@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { execFile } from 'node:child_process';
 import { constants as fsConstants } from 'node:fs';
-import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
@@ -575,20 +575,27 @@ export class ExecutionStageManager {
 
         let repoFileTree: string[] | undefined;
         try {
-            const image = process.env.RUNNER_DOCKER_IMAGE || 'node:22-bookworm-slim';
-            const result = await execFileAsync('docker', [
-                'run', '--rm',
-                '-v', `${workspacePath}:/workspace`,
-                '--workdir', '/workspace',
-                image,
-                'sh', '-c', 'find . -type f -not -path "*/.git/*" -not -path "*/node_modules/*" | sed "s|^./||"'
-            ], { timeout: 30000 });
-            repoFileTree = result.stdout.split('\n').map(l => l.trim()).filter(Boolean);
-            console.log(`[AgentRunner][ExecutionStage] Extracted ${repoFileTree.length} files from docker workspace environment`);
+            const EXCLUDED_DIRS = new Set(['.git', 'node_modules', '.next', 'dist', 'build']);
+            const walkDir = async (dir: string, base: string): Promise<string[]> => {
+                const entries = await readdir(dir, { withFileTypes: true });
+                const results: string[] = [];
+                for (const entry of entries) {
+                    if (EXCLUDED_DIRS.has(entry.name)) continue;
+                    const rel = path.join(base, entry.name);
+                    if (entry.isDirectory()) {
+                        results.push(...await walkDir(path.join(dir, entry.name), rel));
+                    } else if (entry.isFile()) {
+                        results.push(rel);
+                    }
+                }
+                return results;
+            };
+            repoFileTree = await walkDir(workspacePath, '');
+            console.log(`[AgentRunner][ExecutionStage] Scanned ${repoFileTree.length} files in workspace`);
             this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
                 `Repo scanned — ${repoFileTree.length} files indexed`, { fileCount: repoFileTree.length });
         } catch (err: any) {
-            console.warn(`[AgentRunner][ExecutionStage] Failed to extract repo file tree via Docker: ${err.message}`);
+            console.warn(`[AgentRunner][ExecutionStage] Failed to scan repo file tree: ${err.message}`);
             repoFileTree = [];
         }
 
