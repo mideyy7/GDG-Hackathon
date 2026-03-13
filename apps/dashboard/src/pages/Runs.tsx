@@ -57,25 +57,23 @@ export default function RunsPage() {
       </div>
 
       {/* Status filter tabs */}
-      <div className="flex items-center gap-1 flex-wrap">
+      <div className="flex items-center gap-5 flex-wrap border-b border-white/[0.06] pb-0">
         {STATUS_FILTERS.map((s) => (
           <button
             key={s}
             onClick={() => setFilter(s)}
-            className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
+            className={`relative pb-3 text-xs font-medium transition-colors whitespace-nowrap ${
               filter === s
-                ? 'bg-gray-500 text-white'
-                : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/60 hover:text-white'
+                ? 'text-white'
+                : 'text-gray-500 hover:text-gray-300'
             }`}
           >
             {s === 'all' ? 'All' : s.replace('_', ' ')}
-            {s === 'all' && (
-              <span className="ml-1.5 text-gray-500">{runs.length}</span>
-            )}
-            {s !== 'all' && (
-              <span className="ml-1.5 text-gray-500">
-                {runs.filter((r) => r.status === s).length}
-              </span>
+            <span className={`ml-1.5 text-[10px] tabular-nums ${filter === s ? 'text-gray-400' : 'text-gray-600'}`}>
+              {s === 'all' ? runs.length : runs.filter((r) => r.status === s).length}
+            </span>
+            {filter === s && (
+              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-brand rounded-full" />
             )}
           </button>
         ))}
