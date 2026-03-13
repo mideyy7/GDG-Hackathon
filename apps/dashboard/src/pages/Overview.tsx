@@ -62,16 +62,25 @@ export default function OverviewPage({ linkedRepo }: OverviewProps) {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Recent Runs', value: stats.total, color: 'text-white' },
-          { label: 'Completed', value: stats.completed, color: 'text-green-400' },
-          { label: 'Active', value: stats.active, color: 'text-purple-400' },
-          { label: 'Pending Approval', value: stats.pending, color: 'text-yellow-400' },
+          { label: 'Recent Runs',      value: stats.total,     color: 'text-white',     iconBg: 'bg-white/10',    icon: '◈', from: 'rgba(255,255,255,0.10)' },
+          { label: 'Completed',        value: stats.completed, color: 'text-green-400', iconBg: 'bg-green-500/15', icon: '✓', from: 'rgba(74,222,128,0.18)'  },
+          { label: 'Active',           value: stats.active,    color: 'text-purple-400',iconBg: 'bg-purple-500/15',icon: '⚡', from: 'rgba(168,85,247,0.18)'  },
+          { label: 'Pending Approval', value: stats.pending,   color: 'text-yellow-400',iconBg: 'bg-yellow-500/15',icon: '◷', from: 'rgba(250,204,21,0.18)'  },
         ].map((s) => (
-          <div key={s.label} className="card text-center">
-            <p className={`text-3xl font-black ${s.color}`}>{s.value}</p>
-            <p className="text-xs text-gray-500 mt-1 uppercase tracking-wider">
-              {s.label}
-            </p>
+          <div
+            key={s.label}
+            className="card flex items-center gap-3 py-4"
+            style={{ backgroundImage: `linear-gradient(135deg, ${s.from} 0%, transparent 65%)` }}
+          >
+            <div className={`${s.iconBg} rounded-lg w-9 h-9 flex items-center justify-center text-lg shrink-0 ${s.color}`}>
+              {s.icon}
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] text-gray-500 uppercase tracking-wider leading-tight">
+                {s.label}
+              </p>
+              <p className={`text-2xl font-black leading-none mt-0.5 ${s.color}`}>{s.value}</p>
+            </div>
           </div>
         ))}
       </div>

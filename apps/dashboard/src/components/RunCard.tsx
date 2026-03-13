@@ -26,13 +26,13 @@ export default function RunCard({ run }: RunCardProps) {
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           {/* Description */}
-          <p className="text-sm font-medium text-gray-100 leading-snug line-clamp-2 group-hover:text-white transition-colors">
+          <p className="text-sm font-semibold text-gray-100 leading-snug line-clamp-2 group-hover:text-white transition-colors">
             {run.description}
           </p>
 
           {/* Meta */}
-          <div className="flex flex-wrap items-center gap-3 mt-2">
-            <span className="font-mono text-xs text-gray-500">{run.repo}</span>
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            <span className="font-mono text-xs text-gray-500 bg-gray-800 group-hover:bg-gray-700 px-1.5 py-0.5 rounded transition-colors">{run.repo}</span>
             {run.issueNumber && (
               <a
                 href={run.issueUrl || '#'}
@@ -70,6 +70,9 @@ export default function RunCard({ run }: RunCardProps) {
 
         <div className="flex flex-col items-end gap-2 shrink-0">
           <StatusBadge status={run.status} />
+          <span className="text-[10px] font-bold text-cyan-300 uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity duration-150 whitespace-nowrap drop-shadow-[0_0_6px_rgba(103,232,249,0.6)]">
+            Quick View →
+          </span>
         </div>
       </div>
     </Link>
