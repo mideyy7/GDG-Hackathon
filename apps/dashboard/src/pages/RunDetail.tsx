@@ -43,7 +43,7 @@ export default function RunDetailPage() {
   // Poll for status updates on active runs
   useEffect(() => {
     if (!run) return;
-    const activeStatuses = ['approved', 'generating', 'pending_approval'];
+    const activeStatuses = ['planning', 'approved', 'generating', 'pending_approval'];
     if (!activeStatuses.includes(run.status)) return;
 
     const interval = setInterval(reload, 5000);
@@ -199,6 +199,17 @@ export default function RunDetailPage() {
         </div>
       )}
 
+      {/* Planning state — plan not yet ready */}
+      {run.status === 'planning' && (
+        <div className="card flex items-center gap-3 py-5">
+          <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+          <div>
+            <p className="text-sm font-semibold text-white">Generating Architecture Plan</p>
+            <p className="text-xs text-gray-500 mt-0.5">Analysing your repo and designing a plan. This usually takes 30–60 seconds…</p>
+          </div>
+        </div>
+      )}
+
       {/* Plan approval card */}
       {run.status === 'pending_approval' && run.planDetails && (
         <PlanCard
@@ -254,6 +265,9 @@ export default function RunDetailPage() {
           status={run.status}
           branchName={run.branchName}
           prUrl={run.prUrl}
+          onStatusChange={(newStatus) => {
+            setRun((prev) => prev ? { ...prev, status: newStatus as any } : prev);
+          }}
         />
       )}
 

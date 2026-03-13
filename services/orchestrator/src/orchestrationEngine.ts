@@ -49,6 +49,7 @@ export interface ExecuteInput {
     executionBranchName?: string;
     progressChatId?: string;
     progressBotUrl?: string;
+    progressCallbackUrl?: string;
 }
 
 export interface ExecuteResult {
@@ -103,6 +104,7 @@ class LegacyExecutionEngine {
             executionBranchName: input.executionBranchName,
             progressChatId: input.progressChatId,
             progressBotUrl: input.progressBotUrl,
+            progressCallbackUrl: input.progressCallbackUrl,
         }, {
             timeout: ORCHESTRATOR_EXECUTE_TIMEOUT_MS,
         });
@@ -187,6 +189,7 @@ class OpenClawExecutionEngine {
             executionBranchName: input.executionBranchName,
             progressChatId: input.progressChatId,
             progressBotUrl: input.progressBotUrl,
+            progressCallbackUrl: input.progressCallbackUrl,
             source: 'orchestrator',
         }, {
             timeout: ORCHESTRATOR_EXECUTE_TIMEOUT_MS,

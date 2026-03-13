@@ -129,6 +129,20 @@ app.post('/api/task', async (req: Request, res: Response): Promise<any> => {
     const githubToken = userPrefs.github_token;
 
     const runId = uuidv4();
+
+    // ── Insert stub task_run immediately so the dashboard can find the run ────
+    // Plan details are filled in once the planner responds.
+    await supabase.from('task_runs').insert({
+        id: runId,
+        user_id: userId,
+        repo: repoFullName,
+        description,
+        status: 'planning',
+        channel,
+        chat_id: chatId || null,
+        created_at: new Date().toISOString(),
+    });
+
     const issueTitle = `Task: ${description.slice(0, 80)}`;
     const issueBody = [
         `**Requested via:** ${channel}`,
@@ -202,31 +216,20 @@ app.post('/api/task', async (req: Request, res: Response): Promise<any> => {
             return;
         }
 
-        // ── Step 4: Persist task_run to Supabase ─────────────────────────────────
+        // ── Step 4: Update task_run with plan details ─────────────────────────
+        // The stub row was already inserted before GitHub issue creation.
         if (supabase) {
-            const { error: dbError } = await supabase.from('task_runs').upsert(
-                {
-                    id: runId,
-                    plan_id: plan?.planId,
-                    plan_details: plan,
-                    user_id: userId,
-                    repo: repoFullName,
-                    issue_url: issueUrl,
-                    issue_number: issueNumber,
-                    description,
-                    status: 'pending_approval',
-                    channel,
-                    chat_id: chatId,
-                    created_at: new Date().toISOString(),
-                },
-                { onConflict: 'id' }
-            );
+            const { error: dbError } = await supabase.from('task_runs').update({
+                plan_id: plan?.planId,
+                plan_details: plan,
+                issue_url: issueUrl,
+                issue_number: issueNumber,
+                status: 'pending_approval',
+            }).eq('id', runId);
 
             if (dbError) {
-                console.warn('[Orchestrator] Could not persist task_run to Supabase:', dbError.message);
+                console.warn('[Orchestrator] Could not update task_run with plan details:', dbError.message);
             }
-        } else {
-            console.warn('[Orchestrator] Supabase not configured — task_run will not be persisted.');
         }
 
         // ── Emit plan_ready event for SSE clients ────────────────────────────────
@@ -456,6 +459,7 @@ app.post('/api/approve', async (req: Request, res: Response): Promise<any> => {
                 executionBranchName: isolatedEnvironment.branchName,
                 progressChatId: updated.chat_id || undefined,
                 progressBotUrl: execBotUrl || undefined,
+                progressCallbackUrl: `http://localhost:${process.env.PORT || 3010}/api/runs/${updated.id}/progress`,
             });
 
             if (execution.approvedPatchSet) {
@@ -813,6 +817,7 @@ app.post('/api/pr-amend', async (req: Request, res: Response): Promise<any> => {
                 executionBranchName: isolatedEnvironment.branchName,
                 progressChatId: targetChatId || undefined,
                 progressBotUrl: amendBotUrl || undefined,
+                progressCallbackUrl: `http://localhost:${process.env.PORT || 3010}/api/runs/${amendRunId}/progress`,
             });
 
             const branchName = (execution.branchPush as any)?.branchName || existingRun.branch_name;
@@ -1167,6 +1172,18 @@ app.post('/api/runs/:runId/refine', async (req: Request, res: Response): Promise
             await persistAndEmitEvent(createRunEvent(runId, 'failed', 'error', `Refinement failed: ${err.message}`));
         }
     })();
+});
+
+// POST /api/runs/:runId/progress — internal endpoint for agent-runner to push live progress events
+// Called by agent-runner during execution to stream real-time updates to the web dashboard
+app.post('/api/runs/:runId/progress', async (req: Request, res: Response): Promise<any> => {
+    const { runId } = req.params;
+    const { stage, eventType, message, data } = req.body || {};
+    if (!stage || !eventType || !message) {
+        return res.status(400).json({ error: 'Missing required fields: stage, eventType, message' });
+    }
+    await persistAndEmitEvent(createRunEvent(runId, stage, eventType, message, data));
+    return res.status(200).json({ ok: true });
 });
 
 // GET /api/runs/:runId/events — SSE stream of run events

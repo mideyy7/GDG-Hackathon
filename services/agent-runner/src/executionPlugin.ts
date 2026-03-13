@@ -38,6 +38,8 @@ export interface ExecutePayload {
     progressChatId?: string;
     /** Bot URL (e.g. WhatsApp bot) to POST progress messages to */
     progressBotUrl?: string;
+    /** Orchestrator callback URL to POST structured progress events (for web dashboard SSE) */
+    progressCallbackUrl?: string;
 }
 
 export interface ApprovedPatchSubTask {

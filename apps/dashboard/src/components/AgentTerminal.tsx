@@ -20,6 +20,7 @@ interface AgentTerminalProps {
   status: string;
   branchName?: string | null;
   prUrl?: string | null;
+  onStatusChange?: (status: string) => void;
 }
 
 function formatTime(iso: string): string {
@@ -183,25 +184,43 @@ function SummaryCards({ events, branchName, prUrl }: {
   );
 }
 
+const TERMINAL_EVENT_TYPES = new Set(['completed', 'error']);
+const TERMINAL_STAGE_MAP: Record<string, string> = {
+  completed: 'completed',
+  failed: 'failed',
+  security_blocked: 'security_blocked',
+};
+
 export default function AgentTerminal({
   runId,
   status,
   branchName,
   prUrl,
+  onStatusChange,
 }: AgentTerminalProps) {
   const [events, setEvents] = useState<RunEvent[]>([]);
   const [connected, setConnected] = useState(false);
   const [sseError, setSseError] = useState(false);
+  // Effective status — can be updated by incoming SSE events before the parent polls
+  const [effectiveStatus, setEffectiveStatus] = useState(status);
   const logRef = useRef<HTMLDivElement>(null);
   const esRef = useRef<EventSource | null>(null);
 
+  // Sync prop status into effective status (parent poll wins after terminal events)
+  useEffect(() => { setEffectiveStatus(status); }, [status]);
+
   const addEvent = useCallback((event: RunEvent) => {
     setEvents((prev) => {
-      // Deduplicate by id
       if (prev.some((e) => e.id === event.id)) return prev;
       return [...prev, event];
     });
-  }, []);
+    // Immediately update effective status from terminal events
+    if (TERMINAL_EVENT_TYPES.has(event.eventType)) {
+      const newStatus = TERMINAL_STAGE_MAP[event.stage] || event.stage;
+      setEffectiveStatus(newStatus);
+      onStatusChange?.(newStatus);
+    }
+  }, [onStatusChange]);
 
   useEffect(() => {
     let es: EventSource;
@@ -245,8 +264,8 @@ export default function AgentTerminal({
     }
   }, [events]);
 
-  const isLive = ['approved', 'generating'].includes(status);
-  const isTerminal = ['completed', 'failed', 'security_blocked', 'rejected'].includes(status);
+  const isLive = ['approved', 'generating'].includes(effectiveStatus);
+  const isTerminal = ['completed', 'failed', 'security_blocked', 'rejected'].includes(effectiveStatus);
 
   return (
     <div className="card" data-testid="agent-terminal">

@@ -534,6 +534,17 @@ export class ExecutionStageManager {
         axios.post(`${botUrl}/api/send`, { chatId, message }, { timeout: 10_000 }).catch(() => { });
     }
 
+    private notifyProgress(
+        callbackUrl: string | undefined,
+        stage: string,
+        eventType: string,
+        message: string,
+        data?: Record<string, unknown>
+    ): void {
+        if (!callbackUrl) return;
+        axios.post(callbackUrl, { stage, eventType, message, data }, { timeout: 10_000 }).catch(() => { });
+    }
+
     async run(payload: ExecutePayload): Promise<ExecutionStageResult | null> {
         const subTasks = payload.executionSubTasks || [];
         if (subTasks.length === 0) {
@@ -560,6 +571,9 @@ export class ExecutionStageManager {
             `workspace=${workspacePath} subTasks=${subTasks.length}`
         );
 
+        this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
+            `Workspace ready — scanning repo file tree`, { branch: branchName });
+
         let repoFileTree: string[] | undefined;
         try {
             const image = process.env.RUNNER_DOCKER_IMAGE || 'node:22-bookworm-slim';
@@ -572,6 +586,8 @@ export class ExecutionStageManager {
             ], { timeout: 30000 });
             repoFileTree = result.stdout.split('\n').map(l => l.trim()).filter(Boolean);
             console.log(`[AgentRunner][ExecutionStage] Extracted ${repoFileTree.length} files from docker workspace environment`);
+            this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
+                `Repo scanned — ${repoFileTree.length} files indexed`, { fileCount: repoFileTree.length });
         } catch (err: any) {
             console.warn(`[AgentRunner][ExecutionStage] Failed to extract repo file tree via Docker: ${err.message}`);
             repoFileTree = [];
@@ -585,8 +601,14 @@ export class ExecutionStageManager {
             payload.progressBotUrl,
             `🤖 *DevClaw is writing code...*\n\n_Analysing your repo and generating changes for ${subTasks.length} task(s)._`
         );
+        this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
+            `Starting code generation — ${subTasks.length} subtask(s) to complete`, { totalSubTasks: subTasks.length });
 
-        for (const subTask of subTasks) {
+        for (let i = 0; i < subTasks.length; i++) {
+            const subTask = subTasks[i];
+            this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
+                `Subtask ${i + 1}/${subTasks.length}: ${subTask.objective.slice(0, 120)}`,
+                { subTaskId: subTask.id, domain: subTask.domain, index: i + 1, total: subTasks.length });
             const approvedSubTask = await this.runSubTaskLoop(
                 payload,
                 subTask,
@@ -595,6 +617,9 @@ export class ExecutionStageManager {
                 repoFileTree
             );
             loopResults.push(approvedSubTask.report);
+            this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
+                `Subtask ${i + 1}/${subTasks.length} complete — ${approvedSubTask.report.finalDecision === 'APPROVED' ? 'approved' : 'max iterations reached'} (${approvedSubTask.filesChanged.length} file(s) changed)`,
+                { decision: approvedSubTask.report.finalDecision, filesChanged: approvedSubTask.filesChanged });
             approvedSubTasks.push({
                 subTaskId: subTask.id,
                 domain: subTask.domain,
@@ -624,6 +649,8 @@ export class ExecutionStageManager {
 
         // Security gate — scan the full diff for OWASP Top 10 vulnerabilities before pushing
         if (process.env.SECURITY_SCAN_ENABLED !== 'false') {
+            this.notifyProgress(payload.progressCallbackUrl, 'generating', 'security_scan',
+                'Running security scan on generated code (OWASP Top 10 check)');
             const securityAgent = new SecurityReviewAgent();
             const allChangedFiles = approvedSubTasks.flatMap((s) => s.filesChanged);
             const scanResult = await securityAgent.scan({
@@ -639,9 +666,18 @@ export class ExecutionStageManager {
             console.log(
                 `[AgentRunner][SecurityGate] runId=${payload.runId} passed — ${scanResult.summary}`
             );
+            this.notifyProgress(payload.progressCallbackUrl, 'generating', 'security_scan',
+                `Security scan passed — ${scanResult.summary}`, { summary: scanResult.summary });
         }
 
+        this.notifyProgress(payload.progressCallbackUrl, 'generating', 'branch_pushed',
+            `Pushing branch ${branchName} to GitHub`);
         const branchPush = await this.pushExecutionBranch(workspacePath, branchName, headCommit);
+        if ((branchPush as any)?.pushed) {
+            this.notifyProgress(payload.progressCallbackUrl, 'generating', 'branch_pushed',
+                `Branch pushed — https://github.com/${payload.repo}/tree/${branchName}`,
+                { branchName, headCommit, pushed: true });
+        }
         const approvedPatchSet: ApprovedPatchSet = {
             patchSetRef,
             runId: payload.runId,
@@ -658,6 +694,10 @@ export class ExecutionStageManager {
             `[AgentRunner][ExecutionStage] Completed runId=${payload.runId} ` +
             `approvedSubTasks=${approvedCount}/${loopResults.length} head=${headCommit}`
         );
+
+        this.notifyProgress(payload.progressCallbackUrl, 'completed', 'completed',
+            `All ${approvedCount} subtask(s) complete — code is ready on branch ${branchName}`,
+            { branchName, headCommit, approvedCount, totalSubTasks: loopResults.length });
 
         return {
             agentLoopReport,
@@ -682,6 +722,9 @@ export class ExecutionStageManager {
             `[AgentRunner][ExecutionStage] Routing subTask=${subTask.id} ` +
             `domain=${subTask.domain} -> generator=${pair.generator.name}, reviewer=${pair.reviewer.name}`
         );
+        this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
+            `[${pair.generator.name}] → [${pair.reviewer.name}] pair assigned for ${subTask.domain} task`,
+            { generator: pair.generator.name, reviewer: pair.reviewer.name, domain: subTask.domain });
 
         for (let iteration = 1; iteration <= this.maxIterations; iteration++) {
             console.log(
@@ -692,6 +735,9 @@ export class ExecutionStageManager {
                 payload.progressBotUrl,
                 `✍️ *Writing code changes...*\n\n_Attempt ${iteration}/${this.maxIterations}: ${subTask.objective.slice(0, 120)}_`
             );
+            this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
+                `[${pair.generator.name}] Generating code — iteration ${iteration}/${this.maxIterations}`,
+                { agent: pair.generator.name, iteration, maxIterations: this.maxIterations });
             const snapshots = await this.collectFileSnapshots(workspacePath, subTask.files);
             const generation = await pair.generator.run({
                 runId: payload.runId,
@@ -720,6 +766,9 @@ export class ExecutionStageManager {
                 `[AgentRunner][ExecutionStage] subTask=${subTask.id} iteration=${iteration} ` +
                 `generator output (${generation.content.length} chars)`
             );
+            this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
+                `[${pair.generator.name}] Code generated via ${generation.provider}/${generation.model} — applying changes`,
+                { agent: pair.generator.name, model: generation.model, provider: generation.provider, applyMode });
 
             if (applyMode === 'none') {
                 const missingChangeSetNote =
@@ -796,6 +845,9 @@ export class ExecutionStageManager {
                 continue;
             }
 
+            this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
+                `[${pair.reviewer.name}] Reviewing generated code — iteration ${iteration}`,
+                { agent: pair.reviewer.name, iteration });
             const review = await pair.reviewer.run({
                 runId: payload.runId,
                 requestId: payload.requestId,
@@ -813,6 +865,10 @@ export class ExecutionStageManager {
 
             finalDecision = review.decision;
             reviewerNotes = review.notes;
+
+            this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
+                `[${pair.reviewer.name}] Review decision: ${review.decision}${review.notes?.length ? ` — ${review.notes[0].slice(0, 100)}` : ''}`,
+                { agent: pair.reviewer.name, decision: review.decision, notes: review.notes, model: review.model });
 
             trace.push({
                 iteration,

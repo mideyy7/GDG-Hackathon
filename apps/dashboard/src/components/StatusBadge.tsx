@@ -7,6 +7,11 @@ const STATUS_CONFIG: Record<
   string,
   { label: string; className: string; dot: string }
 > = {
+  planning: {
+    label: 'Planning',
+    className: 'bg-blue-500/10 text-blue-300 border border-blue-500/20',
+    dot: 'bg-blue-300 animate-pulse',
+  },
   pending_approval: {
     label: 'Awaiting Approval',
     className: 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20',
