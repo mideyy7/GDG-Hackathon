@@ -59,20 +59,7 @@ const getOrchestratorBaseUrls = (): string[] => {
     const primaryUrl = process.env.ORCHESTRATOR_URL || 'http://localhost:3010';
     const candidates = [primaryUrl];
 
-    try {
-        const parsed = new URL(primaryUrl);
-        if (parsed.hostname === 'host.docker.internal') {
-            const localhostUrl = new URL(primaryUrl);
-            localhostUrl.hostname = 'localhost';
-            candidates.push(localhostUrl.toString().replace(/\/$/, ''));
-
-            const loopbackUrl = new URL(primaryUrl);
-            loopbackUrl.hostname = '127.0.0.1';
-            candidates.push(loopbackUrl.toString().replace(/\/$/, ''));
-        }
-    } catch {
-        // Keep the primary URL only if parsing fails.
-    }
+    // No additional candidates needed beyond the primary URL.
 
     return Array.from(new Set(candidates.map((url) => url.replace(/\/$/, ''))));
 };
