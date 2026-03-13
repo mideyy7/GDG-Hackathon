@@ -273,16 +273,13 @@ Typical required values include:
 - service-to-service URLs
 
 ## Summary
-====================================
-PROBLEM
-=====================================
+
+# PROBLEM
 Most AI coding tools focus on generating code snippets, but they do not support the full software delivery workflow used by real engineering teams. As a result, developers still have to manually coordinate delivery, changes often lack structured planning and review, and AI-generated code can bypass important safety, security, or architectural considerations.
 In addition, collaboration becomes difficult when using AI coding platforms. AI tools are typically used by individuals in isolated interfaces, making it harder for teams to discuss changes, coordinate tasks, and maintain shared visibility over what the AI is generating.
 This creates a clear gap between AI code generation and the collaborative workflows required to safely deliver software in real engineering environments.
 
-=============================================
-SOLUTION
-=============================================
+# SOLUTION
 DevCore is an agentic software delivery system that converts tasks into reviewed GitHub pull requests through a structured workflow.DevCore follows a plan-first delivery pipeline:
 I. A user submits a task
 II. DevCore analyzes the repository and generates an architecture plan
@@ -299,11 +296,7 @@ DevCore can be accessed through:
 
 The WhatsApp interface can be integrated directly into team group chats, allowing developers to trigger tasks, review plans, and coordinate delivery without leaving their communication channel. This enables teams to collaborate with DevCore in the same place they already discuss features, bugs, and deployment decisions.
 
-
-===================================================
-IMPACT
-===================================================
-
+# IMPACT
 DevCore reduces the coordination overhead of software delivery while preserving key engineering safeguards.
 
 1. Faster development cycles
