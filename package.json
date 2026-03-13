@@ -1,0 +1,27 @@
+{
+  "name": "devclaw-monorepo",
+  "private": true,
+  "packageManager": "npm@11.9.0",
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*",
+    "tools/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --concurrency=15",
+    "dev:core": "turbo run dev --concurrency=12 --filter=orchestrator --filter=agent-runner --filter=telegram-bot --filter=whatsapp-bot --filter=@devclaw/landing-page --filter=@devclaw/llm-router",
+    "dev:servers": "turbo run dev --filter=orchestrator --filter=agent-runner --filter=telegram-bot --filter=whatsapp-bot",
+    "build:servers": "turbo run build --filter=orchestrator --filter=agent-runner --filter=telegram-bot --filter=whatsapp-bot",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "turbo run format"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.8",
+    "typescript": "^5.8.2"
+  }
+}

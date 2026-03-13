@@ -1,0 +1,25 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+.next
+coverage
+.turbo
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OS and editor
+.DS_Store
+.vscode
+.idea
+
+# Runtime
+*.log
+
+# WhatsApp
+.wwebjs_auth
+.wwebjs_cache

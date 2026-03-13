@@ -1,0 +1,75 @@
+version: "3.9"
+
+services:
+  telegram-bot:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.telegram-bot
+    env_file:
+      - ../../.env
+    depends_on:
+      - redis
+
+  orchestrator:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.orchestrator
+    env_file:
+      - ../../.env
+    depends_on:
+      - redis
+      - postgres
+
+  agent-runner:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.agent-runner
+    env_file:
+      - ../../.env
+    depends_on:
+      - redis
+
+  dashboard:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.dashboard
+    env_file:
+      - ../../.env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - orchestrator
+
+  ceoclaw-founder:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.ceoclaw-founder
+    env_file:
+      - ../../.env
+    environment:
+      # Point session file into the persisted volume directory
+      LINKEDIN_SESSION_PATH: /app/session/linkedin-session.json
+    ports:
+      - "3050:3050"
+    volumes:
+      # Persist LinkedIn session cookies across container restarts
+      - ceoclaw-session:/app/session
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: devclaw
+      POSTGRES_USER: devclaw
+      POSTGRES_PASSWORD: devclaw
+    ports:
+      - "5432:5432"
+
+volumes:
+  ceoclaw-session:
