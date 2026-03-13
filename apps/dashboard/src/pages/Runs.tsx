@@ -62,7 +62,7 @@ export default function RunsPage() {
           <button
             key={s}
             onClick={() => setFilter(s)}
-            className={`relative pb-3 text-xs font-medium transition-colors whitespace-nowrap ${
+            className={`relative pb-3 text-sm font-medium transition-colors whitespace-nowrap ${
               filter === s
                 ? 'text-white'
                 : 'text-gray-500 hover:text-gray-300'

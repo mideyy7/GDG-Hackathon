@@ -36,9 +36,6 @@ export default function Layout({ children, linkedRepo }: LayoutProps) {
               <span className="text-white">DEV</span>
               <span className="text-brand">CORE</span>
             </span>
-            <span className="text-xs text-gray-600 font-mono border border-gray-800 rounded px-1.5 py-0.5">
-              MISSION CONTROL
-            </span>
           </Link>
 
           {/* Nav links */}

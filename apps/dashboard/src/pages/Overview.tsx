@@ -34,7 +34,7 @@ export default function OverviewPage({ linkedRepo }: OverviewProps) {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-black text-white tracking-tight">
-          Mission Control
+          Dashboard
         </h1>
         <p className="text-gray-400 text-sm mt-1">
           AI engineering control center — submit tasks, review plans, ship code.
