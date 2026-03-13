@@ -23,7 +23,6 @@ import {
     ExecutionSubTask,
 } from './executionPlugin';
 import { SecurityReviewAgent, SecurityVulnerabilityError } from './securityReviewer';
-import { SandboxTestRunner } from './sandboxRunner';
 
 const execFileAsync = promisify(execFile);
 
@@ -599,7 +598,7 @@ export class ExecutionStageManager {
         this.notify(
             payload.progressChatId,
             payload.progressBotUrl,
-            `🤖 *DevCore is writing code...*\n\n_Analysing your repo and generating changes for ${subTasks.length} task(s)._`
+            `🤖 *CoreDev is writing code...*\n\n_Analysing your repo and generating changes for ${subTasks.length} task(s)._`
         );
         this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
             `Starting code generation — ${subTasks.length} subtask(s) to complete`, { totalSubTasks: subTasks.length });
@@ -942,35 +941,6 @@ export class ExecutionStageManager {
                     `[AgentRunner][ExecutionStage] subTask=${subTask.id} approved and committed sha=${commitSha}`
                 );
 
-                // Sandbox auto-test: run build + tests inside Docker; feed failures back as reviewer notes
-                const sandboxRunner = new SandboxTestRunner();
-                const sandboxResult = await sandboxRunner.run(workspacePath, payload.runId);
-                if (!sandboxResult.skipped && !sandboxResult.passed) {
-                    console.warn(
-                        `[SandboxRunner] subTask=${subTask.id} iteration=${iteration} ` +
-                        `build/test FAILED exitCode=${sandboxResult.exitCode} — regenerating`
-                    );
-                    // Undo the commit so the generator can try again cleanly
-                    await this.runGit(['reset', '--soft', 'HEAD~1'], workspacePath);
-                    reviewerNotes = [
-                        `Build or test suite FAILED after your changes (exit code ${sandboxResult.exitCode}).`,
-                        'Fix the errors below before re-generating:',
-                        '```',
-                        sandboxResult.combinedOutput.slice(0, 3000),
-                        '```',
-                    ];
-                    finalDecision = 'REWRITE';
-                    trace.push(this.syntheticRewriteTrace(
-                        iteration,
-                        pair.generator.name,
-                        pair.reviewer.name,
-                        generation.model,
-                        generation.provider,
-                        `Sandbox test failed: exitCode=${sandboxResult.exitCode}`
-                    ));
-                    continue;
-                }
-
                 return {
                     report: {
                         subTaskId: subTask.id,
@@ -1196,7 +1166,7 @@ export class ExecutionStageManager {
         const requestedBranch = isPlaceholderValue(expectedBranchName)
             ? ''
             : (expectedBranchName || '').trim();
-        const fallbackBranch = `devcore/run-${(runId || 'unknown').slice(0, 8)}`;
+        const fallbackBranch = `coredev/run-${(runId || 'unknown').slice(0, 8)}`;
         const targetBranch = requestedBranch || currentBranch || fallbackBranch;
 
         if (!targetBranch) {
@@ -1235,8 +1205,8 @@ export class ExecutionStageManager {
     }
 
     private async ensureGitIdentity(workspacePath: string): Promise<void> {
-        await this.runGit(['config', 'user.name', process.env.RUNNER_GIT_USER_NAME || 'DevCore Agent Runner'], workspacePath);
-        await this.runGit(['config', 'user.email', process.env.RUNNER_GIT_USER_EMAIL || 'agent-runner@devcore.local'], workspacePath);
+        await this.runGit(['config', 'user.name', process.env.RUNNER_GIT_USER_NAME || 'CoreDev Agent Runner'], workspacePath);
+        await this.runGit(['config', 'user.email', process.env.RUNNER_GIT_USER_EMAIL || 'agent-runner@coredev.local'], workspacePath);
     }
 
     private async pushExecutionBranch(

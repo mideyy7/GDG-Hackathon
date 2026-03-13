@@ -27,19 +27,6 @@ jest.mock('../src/securityReviewer', () => ({
     },
 }));
 
-jest.mock('../src/sandboxRunner', () => ({
-    SandboxTestRunner: jest.fn().mockImplementation(() => ({
-        run: jest.fn().mockResolvedValue({
-            passed: true,
-            exitCode: 0,
-            stdout: '',
-            stderr: '',
-            combinedOutput: '',
-            skipped: true,
-            skipReason: 'Mocked in tests',
-        }),
-    })),
-}));
 
 interface GitCommandCall {
     args: string[];

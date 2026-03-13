@@ -55,7 +55,7 @@ const PIPELINE_STEPS = [
     step: '06',
     phase: 'Delivery',
     title: 'Deliver',
-    body: 'DevCore pushes the approved code to a feature branch, opens a pull request with a diff, and sends you the link.',
+    body: 'CoreDev pushes the approved code to a feature branch, opens a pull request with a diff, and sends you the link.',
     model: null,
     accent: 'border-brand-800/40',
     dot: 'bg-brand',
@@ -115,7 +115,7 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
         </button>
 
         <div className="flex items-center gap-1.5 hidden md:flex">
-          <span className="text-white font-bold tracking-[0.15em] text-sm">DEVCORE</span>
+          <span className="text-white font-bold tracking-[0.15em] text-sm">COREDEV</span>
         </div>
 
         <button
@@ -141,7 +141,7 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
               Scale to any<br /><span className="text-[#FF5A20]">codebase.</span>
             </h1>
             <p className="text-white/45 text-base md:text-xl max-w-2xl mx-auto leading-relaxed font-light tracking-wide">
-              DevCore is a multi-agent AI system that turns a plain-language description into a real GitHub pull request in minutes.
+              CoreDev is a multi-agent AI system that turns a plain-language description into a real GitHub pull request in minutes.
             </p>
           </div>
 
@@ -164,7 +164,7 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
                       <span className="text-white font-bold text-xs">DC</span>
                     </div>
                     <div>
-                      <p className="text-white font-semibold text-sm tracking-wide">DevCore Bot</p>
+                      <p className="text-white font-semibold text-sm tracking-wide">CoreDev Bot</p>
                       <p className="text-[#2AABEE] text-[10px] tracking-widest font-mono uppercase">online</p>
                     </div>
                   </div>
@@ -194,7 +194,7 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
                   {/* Input bar */}
                   <div className="bg-black/50 px-4 py-3 flex items-center gap-3 border-t border-white/5 backdrop-blur-md">
                     <div className="flex-1 bg-white/[0.05] border border-white/10 rounded-full px-4 py-2 text-xs text-white/30 font-light">
-                      Message DevCore Bot...
+                      Message CoreDev Bot...
                     </div>
                     <div className="w-8 h-8 rounded-full bg-[#2AABEE] flex items-center justify-center opacity-80 cursor-not-allowed">
                       <svg className="w-3.5 h-3.5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
@@ -341,7 +341,7 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
             <span className="text-[9px] font-mono text-[#FF5A20] tracking-[0.5em] uppercase">Z.AI GLM Models</span>
           </div>
           <h2 className="text-2xl font-thin text-white tracking-widest uppercase">Six roles. One model family.</h2>
-          <p className="text-white/40 text-sm max-w-lg mb-8">Every agent in DevCore runs on Z.AI's GLM model ecosystem. Each model is matched to the cognitive complexity of its role.</p>
+          <p className="text-white/40 text-sm max-w-lg mb-8">Every agent in CoreDev runs on Z.AI's GLM model ecosystem. Each model is matched to the cognitive complexity of its role.</p>
 
           <div className="border border-white/[0.08] rounded-xl overflow-hidden bg-black/50 backdrop-blur-sm">
             <div className="grid grid-cols-12 text-[10px] font-mono text-white/25 tracking-widest uppercase px-5 py-3 border-b border-white/[0.06]">
@@ -445,7 +445,7 @@ export default function AboutPage({ onBack, onGetStarted }: Props) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </button>
-          <p className="mt-12 text-[10px] text-white/15 font-mono tracking-[0.3em]">POWERED BY Z.AI GLM · DEVCORE</p>
+          <p className="mt-12 text-[10px] text-white/15 font-mono tracking-[0.3em]">POWERED BY Z.AI GLM · COREDEV</p>
         </section>
       </div>
     </div>

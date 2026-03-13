@@ -14,7 +14,7 @@ export default function LandingPage({ onEnter }: Props) {
           <div className="w-8 h-8 rounded bg-white flex items-center justify-center">
             <CrabSVG className="w-6 h-6 text-[#0A0A0A]" />
           </div>
-          <span className="text-white font-bold tracking-[0.15em] text-sm">DEVCORE</span>
+          <span className="text-white font-bold tracking-[0.15em] text-sm">COREDEV</span>
         </div>
 
         <button
@@ -73,7 +73,7 @@ export default function LandingPage({ onEnter }: Props) {
           <div className="relative z-20 w-[450px] border border-white/5 bg-[#121212] rounded-xl p-8 shadow-2xl mr-10 xl:mr-20">
             {/* Header / Version badge */}
             <div className="flex flex-col items-center gap-2 mb-10">
-              <span className="text-[10px] text-[#FF5A20] font-mono tracking-widest uppercase bg-[#FF5A20]/10 px-3 py-1 rounded">DevCore v1.0</span>
+              <span className="text-[10px] text-[#FF5A20] font-mono tracking-widest uppercase bg-[#FF5A20]/10 px-3 py-1 rounded">CoreDev v1.0</span>
               <span className="text-white font-bold tracking-widest text-lg">PROMPT <span className="text-white/40 ml-1">✓</span></span>
               <span className="text-[#666] text-[9px] font-mono tracking-widest mt-1">G. PLANNER — {new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
             </div>
