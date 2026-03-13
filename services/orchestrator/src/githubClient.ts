@@ -67,7 +67,7 @@ export async function createIssue(
 ): Promise<{ number: number; html_url: string }> {
     const response = await axios.post(
         `${GITHUB_API}/repos/${owner}/${repo}/issues`,
-        { title, body, labels: ['devclaw'] },
+        { title, body, labels: ['devcore'] },
         {
             headers: {
                 Authorization: `Bearer ${token}`,

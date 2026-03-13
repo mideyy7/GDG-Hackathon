@@ -4,7 +4,7 @@ import { constants as fsConstants } from 'node:fs';
 import { access } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import { ArchitecturePlan } from '@devclaw/contracts';
+import { ArchitecturePlan } from '@devcore/contracts';
 
 const execFileAsync = promisify(execFile);
 
@@ -150,7 +150,7 @@ const normalizeInteger = (value: string | undefined, fallback: number): number =
 
 const resolveDockerConfig = (): DockerConfig => ({
     image: process.env.RUNNER_DOCKER_IMAGE || 'node:22-bookworm-slim',
-    command: process.env.RUNNER_DOCKER_COMMAND || 'echo "DevClaw sandbox execution completed."',
+    command: process.env.RUNNER_DOCKER_COMMAND || 'echo "DevCore sandbox execution completed."',
     timeoutMs: normalizeInteger(process.env.RUNNER_DOCKER_TIMEOUT_MS, 20 * 60 * 1000),
     network: process.env.RUNNER_DOCKER_NETWORK || 'none',
     cpus: process.env.RUNNER_DOCKER_CPUS || '2',
@@ -220,7 +220,7 @@ export class DockerExecutionPlugin implements ExecutionPlugin {
 
         const config = resolveDockerConfig();
         const runToken = sanitizeContainerToken(payload.runId);
-        const containerName = `devclaw-${runToken}-${Date.now()}`;
+        const containerName = `devcore-${runToken}-${Date.now()}`;
         let containerRef = containerName;
 
         try {
@@ -230,9 +230,9 @@ export class DockerExecutionPlugin implements ExecutionPlugin {
                 '--name',
                 containerName,
                 '--label',
-                'devclaw.managed=true',
+                'devcore.managed=true',
                 '--label',
-                `devclaw.run_id=${payload.runId}`,
+                `devcore.run_id=${payload.runId}`,
                 '--workdir',
                 '/workspace',
                 '-v',
@@ -246,13 +246,13 @@ export class DockerExecutionPlugin implements ExecutionPlugin {
                 '--pids-limit',
                 config.pidsLimit || '512',
                 '-e',
-                `DEVCLAW_RUN_ID=${payload.runId}`,
+                `DEVCORE_RUN_ID=${payload.runId}`,
                 '-e',
-                `DEVCLAW_PLAN_ID=${payload.planId || ''}`,
+                `DEVCORE_PLAN_ID=${payload.planId || ''}`,
                 '-e',
-                `DEVCLAW_REPO=${payload.repo || ''}`,
+                `DEVCORE_REPO=${payload.repo || ''}`,
                 '-e',
-                `DEVCLAW_BRANCH=${payload.executionBranchName || ''}`,
+                `DEVCORE_BRANCH=${payload.executionBranchName || ''}`,
                 config.image,
                 'sh',
                 '-lc',

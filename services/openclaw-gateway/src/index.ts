@@ -230,7 +230,7 @@ app.get('/api/auth/github/callback', async (req: Request, res: Response): Promis
                 <head><title>Authentication Successful</title></head>
                 <body style="font-family: sans-serif; text-align: center; padding: 50px;">
                     <h2>✅ GitHub Authentication Successful!</h2>
-                    <p>Your GitHub account has been linked to DevClaw via ${provider}.</p>
+                    <p>Your GitHub account has been linked to DevCore via ${provider}.</p>
                     <p><strong>You can close this window and return to your chat</strong> — we've sent you a confirmation message there too.</p>
                 </body>
             </html>

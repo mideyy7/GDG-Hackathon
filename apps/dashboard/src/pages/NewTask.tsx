@@ -144,7 +144,7 @@ export default function NewTaskPage({ linkedRepo }: NewTaskProps) {
         <ol className="space-y-2 text-sm text-gray-400">
           {[
             'A GitHub issue is created for your task',
-            'DevClaw generates an architecture plan',
+            'DevCore generates an architecture plan',
             'You review and approve the plan',
             'AI agents implement the code',
             'Security scan runs on the diff',

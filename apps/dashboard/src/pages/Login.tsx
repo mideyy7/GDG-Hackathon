@@ -16,7 +16,7 @@ export default function LoginPage() {
         <div className="text-center mb-10">
           <h1 className="text-4xl font-black tracking-tight mb-2">
             <span className="text-white">DEV</span>
-            <span className="text-brand">CLAW</span>
+            <span className="text-brand">CORE</span>
           </h1>
           <p className="text-gray-500 text-sm font-mono tracking-widest uppercase">
             Mission Control

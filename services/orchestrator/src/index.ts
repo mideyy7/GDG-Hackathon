@@ -5,7 +5,7 @@ import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-import { IntakeRequest } from '@devclaw/contracts';
+import { IntakeRequest } from '@devcore/contracts';
 import { createOrDedupeIssue, fetchRepoTree } from './githubClient';
 import { getOrchestrationEngine } from './orchestrationEngine';
 import {
@@ -152,7 +152,7 @@ app.post('/api/task', async (req: Request, res: Response): Promise<any> => {
         description,
         '',
         '---',
-        '_This issue was created automatically by DevClaw. Awaiting approval before execution._',
+        '_This issue was created automatically by DevCore. Awaiting approval before execution._',
     ].join('\n');
 
     let issueNumber: number;
@@ -191,7 +191,7 @@ app.post('/api/task', async (req: Request, res: Response): Promise<any> => {
             console.warn('[Orchestrator] Failed to fetch repo tree for planner context', e.message);
         }
 
-        let plan: import('@devclaw/contracts').ArchitecturePlan | undefined;
+        let plan: import('@devcore/contracts').ArchitecturePlan | undefined;
         try {
             plan = await orchestrationEngine.plan({
                 intake,
@@ -245,7 +245,7 @@ app.post('/api/task', async (req: Request, res: Response): Promise<any> => {
         const formattedRisks = plan?.riskFlags?.length ? plan.riskFlags.map(r => `⚠️ ${r}`).join('\n') : '_None_';
 
         const approvalMessage = [
-            `🤖 *DevClaw — Plan Ready*`,
+            `🤖 *DevCore — Plan Ready*`,
             '',
             `${issueLabel}`,
             `🔗 ${issueUrl}`,
@@ -335,7 +335,7 @@ app.post('/api/approve', async (req: Request, res: Response): Promise<any> => {
             const inProgressMessage = [
                 `⚡ *Execution started!*`,
                 '',
-                `The DevClaw agents are now implementing your task for *${updated.repo || 'your repository'}*.`,
+                `The DevCore agents are now implementing your task for *${updated.repo || 'your repository'}*.`,
                 `_I'll notify you when the code is ready with a link to the branch._`,
             ].join('\n');
             axios
@@ -648,7 +648,7 @@ app.post('/api/refine', async (req: Request, res: Response): Promise<any> => {
 
     // Process refinement in the background
     (async () => {
-        let refinedPlan: import('@devclaw/contracts').ArchitecturePlan | undefined;
+        let refinedPlan: import('@devcore/contracts').ArchitecturePlan | undefined;
         try {
             refinedPlan = await orchestrationEngine.refine({
                 planId,
@@ -690,7 +690,7 @@ app.post('/api/refine', async (req: Request, res: Response): Promise<any> => {
         const formattedRisks = refinedPlan?.riskFlags?.length ? refinedPlan.riskFlags.map(r => `⚠️ ${r}`).join('\n') : '_None_';
 
         const approvalMessage = [
-            `🔄 *DevClaw — Plan Updated*`,
+            `🔄 *DevCore — Plan Updated*`,
             '',
             `${issueLabel}`,
             `🔗 ${existingRun.issue_url}`,
@@ -861,7 +861,7 @@ const getWebUserId = (req: Request): string | null => {
 // In-memory SSE clients map: runId → Set of Response objects
 const sseClients = new Map<string, Set<Response>>();
 
-export const emitRunEvent = (runId: string, event: import('@devclaw/contracts').RunEvent): void => {
+export const emitRunEvent = (runId: string, event: import('@devcore/contracts').RunEvent): void => {
     const clients = sseClients.get(runId);
     if (!clients || clients.size === 0) return;
 
@@ -876,7 +876,7 @@ export const emitRunEvent = (runId: string, event: import('@devclaw/contracts').
 };
 
 // Persist a run event to Supabase run_events table and emit to SSE clients
-const persistAndEmitEvent = async (event: import('@devclaw/contracts').RunEvent): Promise<void> => {
+const persistAndEmitEvent = async (event: import('@devcore/contracts').RunEvent): Promise<void> => {
     if (supabase) {
         supabase.from('run_events').insert({
             id: event.id,
@@ -896,10 +896,10 @@ const persistAndEmitEvent = async (event: import('@devclaw/contracts').RunEvent)
 export const createRunEvent = (
     runId: string,
     stage: string,
-    eventType: import('@devclaw/contracts').RunEventType,
+    eventType: import('@devcore/contracts').RunEventType,
     message: string,
     data?: Record<string, unknown>
-): import('@devclaw/contracts').RunEvent => ({
+): import('@devcore/contracts').RunEvent => ({
     id: uuidv4(),
     runId,
     stage,
@@ -1215,7 +1215,7 @@ app.get('/api/runs/:runId/events', async (req: Request, res: Response): Promise<
 
     if (historicEvents) {
         for (const e of historicEvents) {
-            const event: import('@devclaw/contracts').RunEvent = {
+            const event: import('@devcore/contracts').RunEvent = {
                 id: e.id,
                 runId: e.run_id,
                 stage: e.stage,

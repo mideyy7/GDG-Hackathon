@@ -3,7 +3,7 @@ import { mkdir, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import { ArchitecturePlan } from '@devclaw/contracts';
+import { ArchitecturePlan } from '@devcore/contracts';
 
 const execFileAsync = promisify(execFile);
 
@@ -185,7 +185,7 @@ const runGit = async (args: string[], cwd?: string): Promise<void> => {
 const buildFallbackBranchName = (planId?: string, description?: string): string => {
     const planToken = sanitizeBranchToken((planId || 'run').replace(/^plan-/, ''));
     const descriptionToken = sanitizeBranchToken(description || 'task');
-    return `devclaw/fix-${planToken}-${descriptionToken}`;
+    return `devcore/fix-${planToken}-${descriptionToken}`;
 };
 
 export const resolveApprovedPlan = (planDetails: unknown): ArchitecturePlan | undefined => {
@@ -287,7 +287,7 @@ export const provisionIsolatedExecutionEnvironment = async (
 ): Promise<IsolatedEnvironment> => {
     const isolationRoot =
         process.env.ORCHESTRATOR_ISOLATION_ROOT ||
-        path.join(os.tmpdir(), 'devclaw-isolated-workspaces');
+        path.join(os.tmpdir(), 'devcore-isolated-workspaces');
 
     await mkdir(isolationRoot, { recursive: true });
 

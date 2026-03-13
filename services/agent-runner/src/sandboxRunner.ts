@@ -39,7 +39,7 @@ export class SandboxTestRunner {
             };
         }
 
-        const containerName = `devclaw-sandbox-${runId.replace(/[^a-zA-Z0-9]/g, '-').slice(0, 40)}-${Date.now()}`;
+        const containerName = `devcore-sandbox-${runId.replace(/[^a-zA-Z0-9]/g, '-').slice(0, 40)}-${Date.now()}`;
         const shellCmd = `${SANDBOX_BUILD_CMD} && ${SANDBOX_TEST_CMD}`;
 
         const args = [

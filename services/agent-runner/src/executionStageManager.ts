@@ -599,7 +599,7 @@ export class ExecutionStageManager {
         this.notify(
             payload.progressChatId,
             payload.progressBotUrl,
-            `🤖 *DevClaw is writing code...*\n\n_Analysing your repo and generating changes for ${subTasks.length} task(s)._`
+            `🤖 *DevCore is writing code...*\n\n_Analysing your repo and generating changes for ${subTasks.length} task(s)._`
         );
         this.notifyProgress(payload.progressCallbackUrl, 'generating', 'agent_iteration',
             `Starting code generation — ${subTasks.length} subtask(s) to complete`, { totalSubTasks: subTasks.length });
@@ -1196,7 +1196,7 @@ export class ExecutionStageManager {
         const requestedBranch = isPlaceholderValue(expectedBranchName)
             ? ''
             : (expectedBranchName || '').trim();
-        const fallbackBranch = `devclaw/run-${(runId || 'unknown').slice(0, 8)}`;
+        const fallbackBranch = `devcore/run-${(runId || 'unknown').slice(0, 8)}`;
         const targetBranch = requestedBranch || currentBranch || fallbackBranch;
 
         if (!targetBranch) {
@@ -1235,8 +1235,8 @@ export class ExecutionStageManager {
     }
 
     private async ensureGitIdentity(workspacePath: string): Promise<void> {
-        await this.runGit(['config', 'user.name', process.env.RUNNER_GIT_USER_NAME || 'DevClaw Agent Runner'], workspacePath);
-        await this.runGit(['config', 'user.email', process.env.RUNNER_GIT_USER_EMAIL || 'agent-runner@devclaw.local'], workspacePath);
+        await this.runGit(['config', 'user.name', process.env.RUNNER_GIT_USER_NAME || 'DevCore Agent Runner'], workspacePath);
+        await this.runGit(['config', 'user.email', process.env.RUNNER_GIT_USER_EMAIL || 'agent-runner@devcore.local'], workspacePath);
     }
 
     private async pushExecutionBranch(
