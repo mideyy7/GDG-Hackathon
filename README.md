@@ -15,7 +15,7 @@ DevCore runs a full delivery workflow instead of stopping at code generation:
 5. Optional validation stages, including security review, can run before delivery
 6. A GitHub branch and pull request are produced for human review
 
-The product can be used through the web dashboard or through Telegram and WhatsApp.
+The product can be used through the web dashboard, the native Android app, or through Telegram and WhatsApp.
 
 ## Why It Exists
 
@@ -114,6 +114,25 @@ In development, the dashboard proxies:
 - `/api/*` to the gateway on port `3001`
 - `/orchestrator/*` to the orchestrator on port `3010`
 
+### Android App
+
+`apps/dashboard-android` is a native Kotlin + Jetpack Compose client with the
+same functionality as the web dashboard, talking to the same gateway and
+orchestrator APIs:
+
+- GitHub sign-in via Chrome Custom Tabs
+- repository discovery and linking
+- task submission
+- run listing and run detail screens
+- plan approve / reject / refine actions
+- live event streaming with the Agent Terminal (via Server-Sent Events)
+- PR and branch result views
+
+Unlike the web dashboard, it has no same-origin dev proxy to inherit a host
+from, so the gateway's base URL is a configurable app setting (defaults to
+`http://10.0.2.2:3001`, the Android emulator's loopback to the host machine).
+See `apps/dashboard-android/README.md` for build and run instructions.
+
 ### Chat Interfaces
 
 `apps/telegram-bot` and `apps/whatsapp-bot` support:
@@ -133,6 +152,7 @@ In development, the dashboard proxies:
 ### Applications
 
 - `apps/dashboard` - web Mission Control
+- `apps/dashboard-android` - native Android Mission Control (Kotlin + Jetpack Compose)
 - `apps/landing-page` - marketing site
 - `apps/telegram-bot` - Telegram interface
 - `apps/whatsapp-bot` - WhatsApp interface
@@ -156,6 +176,7 @@ In development, the dashboard proxies:
 | Monorepo        | Turborepo + npm workspaces             |
 | Backend         | Node.js + Express + TypeScript         |
 | Frontend        | React + Vite + Tailwind CSS            |
+| Android         | Kotlin + Jetpack Compose + Retrofit    |
 | Messaging       | Telegram Bot API, WhatsApp Web.js      |
 | Persistence     | Supabase PostgreSQL                    |
 | Retrieval       | pgvector-based semantic search         |
@@ -177,6 +198,7 @@ In the current implementation:
 ```text
 apps/
   dashboard/
+  dashboard-android/
   landing-page/
   telegram-bot/
   whatsapp-bot/
@@ -232,6 +254,18 @@ npx turbo run dev \
 ```bash
 npx turbo run dev --filter=@devclaw/dashboard
 ```
+
+### Run Android App
+
+```bash
+cd apps/dashboard-android
+./gradlew assembleDebug   # build the debug APK
+./gradlew testDebugUnitTest  # run unit tests
+```
+
+Open `apps/dashboard-android` in Android Studio to run on an emulator or
+device. It talks to the gateway/orchestrator over the base URL configured in
+the app's login screen (defaults to `http://10.0.2.2:3001` for the emulator).
 
 ### Run Landing Page
 
